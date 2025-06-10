@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes matrixRain {
+  0% {
+    background-position: 0% 0%;
+    background-size: 16px 16px, 100% 100%;
+  }
+  100% {
+    background-position: 0% 100%;
+    background-size: 32px 32px, 100% 100%;
+  }
+}
+
+.matrix-background {
+  position: relative;
+  background-color: black;
+}
+
+.matrix-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(#00ff0025 1.5px, transparent 2px),
+    linear-gradient(180deg, 
+      transparent 0%,
+      rgba(0, 255, 0, 0.05) 50%,
+      rgba(0, 255, 0, 0.1) 100%
+    );
+  background-size: 16px 16px, 100% 100%;
+  mask-image: linear-gradient(to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.9) 25%,
+    rgba(0, 0, 0, 0.8) 50%,
+    rgba(0, 0, 0, 0.7) 75%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  animation: matrixRain 15s linear infinite;
+  pointer-events: none;
+  transform-origin: top;
+  will-change: transform, background-size, background-position;
+}
