@@ -11,6 +11,7 @@ interface DeleteTrackProps {
 export function DeleteTrack({ track, onDeleted }: DeleteTrackProps) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -27,17 +28,20 @@ export function DeleteTrack({ track, onDeleted }: DeleteTrackProps) {
     getUser();
   }, []);
 
-  // Show delete button only in development or for admin users
+  // Show delete button only for authenticated users who own the track or are admin
   const isAdmin = user?.email === import.meta.env.VITE_ADMIN_EMAIL;
-  const showDelete = (import.meta.env.DEV || isAdmin) && user;
+  const isOwner = user && track.user_id === user.id;
+  const canDelete = user && (isOwner || isAdmin || import.meta.env.DEV);
 
-  // Don't render if not authenticated or not authorized
-  if (loading || !showDelete) {
+  // Don't render if not authorized or still loading
+  if (loading || !canDelete) {
     return null;
   }
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${track.title}" permanently?`)) return;
+
+    setDeleting(true);
 
     try {
       // 1) Remove storage objects if they exist
@@ -75,7 +79,14 @@ export function DeleteTrack({ track, onDeleted }: DeleteTrackProps) {
       }
 
       // Execute storage deletions (ignore errors for missing files)
-      await Promise.allSettled(deletePromises);
+      const storageResults = await Promise.allSettled(deletePromises);
+      
+      // Log any storage deletion errors for debugging
+      storageResults.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.warn(`Storage deletion ${index} failed:`, result.reason);
+        }
+      });
 
       // 2) Delete database record
       const { error } = await supabase
@@ -95,16 +106,23 @@ export function DeleteTrack({ track, onDeleted }: DeleteTrackProps) {
     } catch (error: any) {
       console.error('Delete error:', error);
       alert(`Failed to delete track: ${error.message}`);
+    } finally {
+      setDeleting(false);
     }
   };
 
   return (
     <button
       onClick={handleDelete}
-      className="ml-2 p-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-      title="Delete track"
+      disabled={deleting}
+      className="ml-2 p-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white rounded transition-colors"
+      title={`Delete track${isOwner ? ' (you own this)' : isAdmin ? ' (admin)' : ''}`}
     >
-      <Trash2 size={14} />
+      {deleting ? (
+        <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent"></div>
+      ) : (
+        <Trash2 size={14} />
+      )}
     </button>
   );
 }

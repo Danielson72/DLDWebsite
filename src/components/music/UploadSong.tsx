@@ -49,7 +49,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
 
   // Show upload component only in development or for admin users
   const isAdmin = user?.email === import.meta.env.VITE_ADMIN_EMAIL;
-  const showUpload = import.meta.env.DEV || isAdmin;
+  const showUpload = (import.meta.env.DEV || isAdmin) && user;
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -84,7 +84,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
     setStatus(null);
 
     try {
-      // Upload file to storage with proper owner assignment
+      // Upload file to storage with proper user folder structure
       const fileExt = form.file.name.split('.').pop();
       const fileName = `tracks/${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       
@@ -93,7 +93,8 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
         .upload(fileName, form.file, { 
           upsert: true,
           metadata: {
-            owner: user.id
+            owner: user.id,
+            originalName: form.file.name
           }
         });
 
@@ -107,7 +108,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
         .from('my-music')
         .getPublicUrl(uploadData.path);
 
-      // Insert track record into database
+      // Insert track record into database with user ownership
       const { error: dbError } = await supabase
         .from('music_tracks')
         .insert({
@@ -117,10 +118,13 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
           price_cents: Math.round(parseFloat(form.price) * 100),
           audio_full: publicUrl,
           audio_preview: publicUrl, // Using same file for preview
+          user_id: user.id, // Set ownership
         });
 
       if (dbError) {
         console.error('Database insert error:', dbError);
+        // If database insert fails, clean up the uploaded file
+        await supabase.storage.from('my-music').remove([fileName]);
         throw new Error(`Database error: ${dbError.message}`);
       }
 
@@ -178,7 +182,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
     }
   };
 
-  // Don't render anything if not in dev mode and not admin
+  // Don't render anything if not authorized
   if (!showUpload) {
     return null;
   }
