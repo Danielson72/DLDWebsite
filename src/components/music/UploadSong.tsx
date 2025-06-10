@@ -67,6 +67,11 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
       return;
     }
 
+    if (!user) {
+      setStatus({ type: 'error', message: 'You must be logged in to upload files' });
+      return;
+    }
+
     if (form.file.size > MAX_FILE_SIZE) {
       setStatus({ 
         type: 'error', 
@@ -79,21 +84,27 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
     setStatus(null);
 
     try {
-      // Upload file to storage
+      // Upload file to storage with proper owner assignment
       const fileExt = form.file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const fileName = `tracks/${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('music')
-        .upload(fileName, form.file, { upsert: true });
+        .from('my-music')
+        .upload(fileName, form.file, { 
+          upsert: true,
+          metadata: {
+            owner: user.id
+          }
+        });
 
       if (uploadError) {
-        throw uploadError;
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('music')
+        .from('my-music')
         .getPublicUrl(uploadData.path);
 
       // Insert track record into database
@@ -109,7 +120,8 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
         });
 
       if (dbError) {
-        throw dbError;
+        console.error('Database insert error:', dbError);
+        throw new Error(`Database error: ${dbError.message}`);
       }
 
       setStatus({ type: 'success', message: `✅ Successfully uploaded "${form.title}"` });
@@ -182,6 +194,17 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="bg-black/40 p-4 rounded-lg border border-red-500/30 mb-6">
+        <div className="flex items-center gap-2 text-red-400">
+          <AlertCircle size={16} />
+          You must be logged in to upload music tracks.
+        </div>
+      </div>
+    );
+  }
+
   if (!showForm) {
     return (
       <div className="bg-black/40 p-4 rounded-lg border border-green-500/30 mb-6">
@@ -231,7 +254,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
             className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white focus:border-amber-500 focus:outline-none"
           >
             <option value="DLD">Daniel in the Lion's Den</option>
-            <option value="The Tru Witnesses">The Tru Witnesses</option>
+            <option value="True Witnesses">The Tru Witnesses</option>
             <option value="Project 3">Project 3</option>
           </select>
         </div>
