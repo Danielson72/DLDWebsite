@@ -62,7 +62,15 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
 
       if (error) {
         console.error('Error creating checkout session:', error);
-        alert('Error processing payment. Please try again.');
+        
+        // Provide more specific error messages based on the error
+        if (error.message?.includes('environment variable')) {
+          alert('Payment system is currently unavailable. Please contact support or try again later.');
+        } else if (error.message?.includes('STRIPE_SECRET_KEY')) {
+          alert('Payment configuration error. Please contact support.');
+        } else {
+          alert(`Error processing payment: ${error.message || 'Please try again.'}`);
+        }
         return;
       }
 
@@ -73,7 +81,17 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error processing payment. Please try again.');
+      
+      // Handle different types of errors
+      if (error instanceof Error) {
+        if (error.message.includes('non-2xx status code')) {
+          alert('Payment system is temporarily unavailable. Please contact support or try again later.');
+        } else {
+          alert(`Error processing payment: ${error.message}`);
+        }
+      } else {
+        alert('Error processing payment. Please try again.');
+      }
     } finally {
       setIsProcessing(false);
     }
