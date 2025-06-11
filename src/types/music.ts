@@ -10,7 +10,6 @@ export interface Track {
   waveform_json: number[] | null;
   created_at: string | null;
   updated_at: string | null;
-  user_id: string | null; // Added for ownership tracking
 }
 
-export type Artist = 'DLD' | 'True Witnesses' | 'Project 3';
+export type Artist = 'DLD' | 'The Tru Witnesses' | 'Project 3';

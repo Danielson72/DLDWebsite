@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Track } from '../../types/music';
 import { supabase } from '../../lib/supabase';
 import { DeleteTrack } from './DeleteTrack';
-import { EditTrack } from './EditTrack';
 
 interface PlayerContentProps {
   tracks: Track[];
@@ -14,7 +13,6 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -22,19 +20,6 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
       setCurrentTrack(tracks[0]);
     }
   }, [tracks, currentTrack]);
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-
-    getUser();
-  }, []);
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -62,15 +47,7 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
 
       if (error) {
         console.error('Error creating checkout session:', error);
-        
-        // Provide more specific error messages based on the error
-        if (error.message?.includes('environment variable')) {
-          alert('Payment system is currently unavailable. Please contact support or try again later.');
-        } else if (error.message?.includes('STRIPE_SECRET_KEY')) {
-          alert('Payment configuration error. Please contact support.');
-        } else {
-          alert(`Error processing payment: ${error.message || 'Please try again.'}`);
-        }
+        alert('Error processing payment. Please try again.');
         return;
       }
 
@@ -81,17 +58,7 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
       }
     } catch (error) {
       console.error('Error:', error);
-      
-      // Handle different types of errors
-      if (error instanceof Error) {
-        if (error.message.includes('non-2xx status code')) {
-          alert('Payment system is temporarily unavailable. Please contact support or try again later.');
-        } else {
-          alert(`Error processing payment: ${error.message}`);
-        }
-      } else {
-        alert('Error processing payment. Please try again.');
-      }
+      alert('Error processing payment. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -99,13 +66,6 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
 
   const formatPrice = (cents: number) => {
     return `$${(cents / 100).toFixed(2)}`;
-  };
-
-  const handleTrackUpdated = () => {
-    // Refresh the track list after update
-    if (onTrackDeleted) {
-      onTrackDeleted();
-    }
   };
 
   if (!tracks.length) {
@@ -124,14 +84,7 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
         <div className="bg-black/40 p-6 rounded-lg border border-yellow-400/30">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-yellow-300">Now Playing</h2>
-            <div className="flex items-center gap-1">
-              <EditTrack 
-                track={currentTrack} 
-                user={user} 
-                onUpdated={handleTrackUpdated} 
-              />
-              <DeleteTrack track={currentTrack} onDeleted={onTrackDeleted} />
-            </div>
+            <DeleteTrack track={currentTrack} onDeleted={onTrackDeleted} />
           </div>
           <div className="flex items-center gap-4 mb-4">
             <button
@@ -143,9 +96,6 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
             <div className="flex-1">
               <h3 className="text-xl font-semibold text-yellow-300">{currentTrack.title}</h3>
               <p className="text-green-200">{currentTrack.artist}</p>
-              {user && currentTrack.user_id === user.id && (
-                <p className="text-amber-400 text-sm">Your track</p>
-              )}
             </div>
             <div className="text-right">
               <p className="text-yellow-300 font-bold text-lg">{formatPrice(currentTrack.price_cents)}</p>
@@ -205,14 +155,6 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h4 className="text-yellow-300 font-semibold">{track.title}</h4>
-                    {user && track.user_id === user.id && (
-                      <span className="text-xs bg-amber-500 text-black px-2 py-1 rounded">Your track</span>
-                    )}
-                    <EditTrack 
-                      track={track} 
-                      user={user} 
-                      onUpdated={handleTrackUpdated} 
-                    />
                     <DeleteTrack track={track} onDeleted={onTrackDeleted} />
                   </div>
                   <p className="text-green-200/80 text-sm">{track.artist}</p>

@@ -49,7 +49,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
 
   // Show upload component only in development or for admin users
   const isAdmin = user?.email === import.meta.env.VITE_ADMIN_EMAIL;
-  const showUpload = (import.meta.env.DEV || isAdmin) && user;
+  const showUpload = import.meta.env.DEV || isAdmin;
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -67,11 +67,6 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
       return;
     }
 
-    if (!user) {
-      setStatus({ type: 'error', message: 'You must be logged in to upload files' });
-      return;
-    }
-
     if (form.file.size > MAX_FILE_SIZE) {
       setStatus({ 
         type: 'error', 
@@ -84,31 +79,24 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
     setStatus(null);
 
     try {
-      // Upload file to storage with proper user folder structure
+      // Upload file to storage
       const fileExt = form.file.name.split('.').pop();
-      const fileName = `tracks/${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('my-music')
-        .upload(fileName, form.file, { 
-          upsert: true,
-          metadata: {
-            owner: user.id,
-            originalName: form.file.name
-          }
-        });
+        .from('music')
+        .upload(fileName, form.file, { upsert: true });
 
       if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        throw new Error(`Upload failed: ${uploadError.message}`);
+        throw uploadError;
       }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('my-music')
+        .from('music')
         .getPublicUrl(uploadData.path);
 
-      // Insert track record into database with user ownership
+      // Insert track record into database
       const { error: dbError } = await supabase
         .from('music_tracks')
         .insert({
@@ -118,14 +106,10 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
           price_cents: Math.round(parseFloat(form.price) * 100),
           audio_full: publicUrl,
           audio_preview: publicUrl, // Using same file for preview
-          user_id: user.id, // Set ownership
         });
 
       if (dbError) {
-        console.error('Database insert error:', dbError);
-        // If database insert fails, clean up the uploaded file
-        await supabase.storage.from('my-music').remove([fileName]);
-        throw new Error(`Database error: ${dbError.message}`);
+        throw dbError;
       }
 
       setStatus({ type: 'success', message: `✅ Successfully uploaded "${form.title}"` });
@@ -182,7 +166,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
     }
   };
 
-  // Don't render anything if not authorized
+  // Don't render anything if not in dev mode and not admin
   if (!showUpload) {
     return null;
   }
@@ -193,17 +177,6 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
         <div className="flex items-center gap-2 text-gray-400">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
           Loading...
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="bg-black/40 p-4 rounded-lg border border-red-500/30 mb-6">
-        <div className="flex items-center gap-2 text-red-400">
-          <AlertCircle size={16} />
-          You must be logged in to upload music tracks.
         </div>
       </div>
     );
@@ -258,7 +231,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
             className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white focus:border-amber-500 focus:outline-none"
           >
             <option value="DLD">Daniel in the Lion's Den</option>
-            <option value="True Witnesses">The Tru Witnesses</option>
+            <option value="The Tru Witnesses">The Tru Witnesses</option>
             <option value="Project 3">Project 3</option>
           </select>
         </div>
