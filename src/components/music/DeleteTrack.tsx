@@ -13,6 +13,11 @@ export function DeleteTrack({ track, onDeleted }: DeleteTrackProps) {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
+  // Only show in Bolt development environment
+  if (!import.meta.env.VITE_BOLT_NEW) {
+    return null;
+  }
+
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -44,55 +49,10 @@ export function DeleteTrack({ track, onDeleted }: DeleteTrackProps) {
     setDeleting(true);
 
     try {
-      // 1) Remove storage objects if they exist
-      const deletePromises = [];
-      
-      if (track.audio_full) {
-        // Extract filename from full URL path
-        const pathParts = track.audio_full.split('/my-music/');
-        if (pathParts.length === 2) {
-          const fileKey = decodeURIComponent(pathParts[1]);
-          deletePromises.push(
-            supabase.storage.from('my-music').remove([fileKey])
-          );
-        }
-      }
-      
-      if (track.audio_preview && track.audio_preview !== track.audio_full) {
-        const pathParts = track.audio_preview.split('/my-music/');
-        if (pathParts.length === 2) {
-          const fileKey = decodeURIComponent(pathParts[1]);
-          deletePromises.push(
-            supabase.storage.from('my-music').remove([fileKey])
-          );
-        }
-      }
-      
-      if (track.cover_url) {
-        const pathParts = track.cover_url.split('/my-music/');
-        if (pathParts.length === 2) {
-          const fileKey = decodeURIComponent(pathParts[1]);
-          deletePromises.push(
-            supabase.storage.from('my-music').remove([fileKey])
-          );
-        }
-      }
-
-      // Execute storage deletions (ignore errors for missing files)
-      const storageResults = await Promise.allSettled(deletePromises);
-      
-      // Log any storage deletion errors for debugging
-      storageResults.forEach((result, index) => {
-        if (result.status === 'rejected') {
-          console.warn(`Storage deletion ${index} failed:`, result.reason);
-        }
+      // Use service role function to delete track (bypassing RLS)
+      const { error } = await supabase.functions.invoke('admin-delete-track', {
+        body: { trackId: track.id }
       });
-
-      // 2) Delete database record
-      const { error } = await supabase
-        .from('music_tracks')
-        .delete()
-        .eq('id', track.id);
 
       if (error) {
         throw error;
