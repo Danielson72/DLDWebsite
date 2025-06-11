@@ -32,11 +32,6 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
     file: null,
   });
 
-  // Only show in Bolt development environment
-  if (!import.meta.env.VITE_BOLT_NEW) {
-    return null;
-  }
-
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -113,9 +108,10 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
         .from('my-music')
         .getPublicUrl(uploadData.path);
 
-      // Use service role to insert track record (bypassing RLS)
-      const { error: dbError } = await supabase.functions.invoke('admin-insert-track', {
-        body: {
+      // Insert track record into database with user ownership
+      const { error: dbError } = await supabase
+        .from('music_tracks')
+        .insert({
           title: form.title.trim(),
           artist: form.artist,
           description: form.description.trim() || null,
@@ -123,8 +119,7 @@ export function UploadSong({ onUploaded }: UploadSongProps) {
           audio_full: publicUrl,
           audio_preview: publicUrl, // Using same file for preview
           user_id: user.id, // Set ownership
-        }
-      });
+        });
 
       if (dbError) {
         console.error('Database insert error:', dbError);

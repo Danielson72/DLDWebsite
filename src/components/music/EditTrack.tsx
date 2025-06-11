@@ -18,11 +18,6 @@ export function EditTrack({ track, user, onUpdated }: EditTrackProps) {
     price_cents: track.price_cents,
   });
 
-  // Only show in Bolt development environment
-  if (!import.meta.env.VITE_BOLT_NEW) {
-    return null;
-  }
-
   // Show edit button only for authenticated users who own the track or are admin
   const isAdmin = user?.email === import.meta.env.VITE_ADMIN_EMAIL;
   const isOwner = user && track.user_id === user.id;
@@ -41,15 +36,14 @@ export function EditTrack({ track, user, onUpdated }: EditTrackProps) {
     setSaving(true);
 
     try {
-      // Use service role function to update track (bypassing RLS)
-      const { error } = await supabase.functions.invoke('admin-update-track', {
-        body: {
-          trackId: track.id,
+      const { error } = await supabase
+        .from('music_tracks')
+        .update({
           title: editForm.title.trim(),
           description: editForm.description.trim() || null,
           price_cents: editForm.price_cents,
-        }
-      });
+        })
+        .eq('id', track.id);
 
       if (error) {
         throw error;
