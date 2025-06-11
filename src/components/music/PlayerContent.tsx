@@ -46,19 +46,32 @@ export function PlayerContent({ tracks, onTrackDeleted }: PlayerContentProps) {
       });
 
       if (error) {
-        console.error('Error creating checkout session:', error);
-        alert('Error processing payment. Please try again.');
+        console.error('Supabase function error:', error);
+        
+        // Provide more specific error messages based on the error details
+        let errorMessage = 'Error processing payment. Please try again.';
+        
+        if (error.message?.includes('STRIPE_SECRET_KEY')) {
+          errorMessage = 'Payment system is not configured. Please contact support.';
+        } else if (error.message?.includes('environment variable')) {
+          errorMessage = 'Payment system configuration error. Please contact support.';
+        } else if (error.message?.includes('Track not found')) {
+          errorMessage = 'This track is no longer available for purchase.';
+        }
+        
+        alert(errorMessage);
         return;
       }
 
       if (data?.url) {
         window.location.href = data.url;
       } else {
+        console.error('No checkout URL returned:', data);
         alert('Error creating checkout session. Please try again.');
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error processing payment. Please try again.');
+      console.error('Unexpected error during checkout:', error);
+      alert('An unexpected error occurred. Please try again or contact support.');
     } finally {
       setIsProcessing(false);
     }

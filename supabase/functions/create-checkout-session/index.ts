@@ -15,14 +15,52 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
+    console.log('Environment check:', {
+      hasStripeKey: !!stripeSecretKey,
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+    })
+
     if (!stripeSecretKey) {
-      throw new Error('STRIPE_SECRET_KEY environment variable is not set')
+      console.error('STRIPE_SECRET_KEY environment variable is not set')
+      return new Response(
+        JSON.stringify({ 
+          error: 'STRIPE_SECRET_KEY environment variable is not set',
+          details: 'Please configure the STRIPE_SECRET_KEY in your Supabase Edge Function settings'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
     }
+    
     if (!supabaseUrl) {
-      throw new Error('SUPABASE_URL environment variable is not set')
+      console.error('SUPABASE_URL environment variable is not set')
+      return new Response(
+        JSON.stringify({ 
+          error: 'SUPABASE_URL environment variable is not set',
+          details: 'Please configure the SUPABASE_URL in your Supabase Edge Function settings'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
     }
+    
     if (!supabaseServiceKey) {
-      throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set')
+      console.error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set')
+      return new Response(
+        JSON.stringify({ 
+          error: 'SUPABASE_SERVICE_ROLE_KEY environment variable is not set',
+          details: 'Please configure the SUPABASE_SERVICE_ROLE_KEY in your Supabase Edge Function settings'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
     }
 
     const { default: Stripe } = await import('npm:stripe@14.21.0')
@@ -33,8 +71,20 @@ Deno.serve(async (req) => {
     const { trackId } = await req.json()
 
     if (!trackId) {
-      throw new Error('Track ID is required')
+      console.error('Track ID is required but not provided')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Track ID is required',
+          details: 'Please provide a valid track ID'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
     }
+
+    console.log('Fetching track with ID:', trackId)
 
     // Fetch track from Supabase
     const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/music_tracks?id=eq.${trackId}`, {
@@ -46,15 +96,38 @@ Deno.serve(async (req) => {
     })
 
     if (!supabaseResponse.ok) {
-      throw new Error(`Failed to fetch track: ${supabaseResponse.status} ${supabaseResponse.statusText}`)
+      const errorText = await supabaseResponse.text()
+      console.error('Failed to fetch track:', supabaseResponse.status, supabaseResponse.statusText, errorText)
+      return new Response(
+        JSON.stringify({ 
+          error: `Failed to fetch track: ${supabaseResponse.status} ${supabaseResponse.statusText}`,
+          details: errorText
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
     }
 
     const tracks = await supabaseResponse.json()
     const track = tracks[0]
 
     if (!track) {
-      throw new Error('Track not found')
+      console.error('Track not found with ID:', trackId)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Track not found',
+          details: `No track found with ID: ${trackId}`
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 404,
+        }
+      )
     }
+
+    console.log('Creating Stripe checkout session for track:', track.title)
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -81,6 +154,8 @@ Deno.serve(async (req) => {
       },
     })
 
+    console.log('Checkout session created successfully:', session.id)
+
     return new Response(
       JSON.stringify({ url: session.url }),
       {
@@ -90,14 +165,27 @@ Deno.serve(async (req) => {
     )
   } catch (error) {
     console.error('Error creating checkout session:', error)
+    
+    // Provide more specific error messages based on the error type
+    let errorMessage = error.message
+    let statusCode = 500
+    
+    if (error.message?.includes('Invalid API Key')) {
+      errorMessage = 'Invalid Stripe API key configuration'
+      statusCode = 500
+    } else if (error.message?.includes('No such')) {
+      errorMessage = 'Stripe resource not found'
+      statusCode = 404
+    }
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: 'Check that all required environment variables are set in Supabase Edge Functions settings'
+        error: errorMessage,
+        details: 'Check the Edge Function logs for more details. Ensure all required environment variables are set in Supabase Edge Functions settings.'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: statusCode,
       }
     )
   }
