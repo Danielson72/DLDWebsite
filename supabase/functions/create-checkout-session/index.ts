@@ -1,3 +1,5 @@
+import { createClient } from 'npm:@supabase/supabase-js@2'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -12,13 +14,9 @@ Deno.serve(async (req) => {
   try {
     // Check for required environment variables
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
     console.log('Environment check:', {
       hasStripeKey: !!stripeSecretKey,
-      hasSupabaseUrl: !!supabaseUrl,
-      hasServiceKey: !!supabaseServiceKey,
     })
 
     if (!stripeSecretKey) {
@@ -34,27 +32,17 @@ Deno.serve(async (req) => {
         }
       )
     }
-    
-    if (!supabaseUrl) {
-      console.error('SUPABASE_URL environment variable is not set')
-      return new Response(
-        JSON.stringify({ 
-          error: 'SUPABASE_URL environment variable is not set',
-          details: 'Please configure the SUPABASE_URL in your Supabase Edge Function settings'
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500,
-        }
-      )
-    }
-    
+
+    // Use the built-in Supabase environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'http://localhost:54321'
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
     if (!supabaseServiceKey) {
       console.error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set')
       return new Response(
         JSON.stringify({ 
           error: 'SUPABASE_SERVICE_ROLE_KEY environment variable is not set',
-          details: 'Please configure the SUPABASE_SERVICE_ROLE_KEY in your Supabase Edge Function settings'
+          details: 'This should be automatically available in Supabase Edge Functions'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -62,6 +50,9 @@ Deno.serve(async (req) => {
         }
       )
     }
+
+    // Create Supabase client
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const { default: Stripe } = await import('npm:stripe@14.21.0')
     const stripe = new Stripe(stripeSecretKey, {
@@ -86,22 +77,18 @@ Deno.serve(async (req) => {
 
     console.log('Fetching track with ID:', trackId)
 
-    // Fetch track from Supabase
-    const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/music_tracks?id=eq.${trackId}`, {
-      headers: {
-        'Authorization': `Bearer ${supabaseServiceKey}`,
-        'apikey': supabaseServiceKey,
-        'Content-Type': 'application/json',
-      },
-    })
+    // Fetch track from Supabase using the client
+    const { data: tracks, error: fetchError } = await supabase
+      .from('music_tracks')
+      .select('*')
+      .eq('id', trackId)
 
-    if (!supabaseResponse.ok) {
-      const errorText = await supabaseResponse.text()
-      console.error('Failed to fetch track:', supabaseResponse.status, supabaseResponse.statusText, errorText)
+    if (fetchError) {
+      console.error('Failed to fetch track:', fetchError)
       return new Response(
         JSON.stringify({ 
-          error: `Failed to fetch track: ${supabaseResponse.status} ${supabaseResponse.statusText}`,
-          details: errorText
+          error: `Failed to fetch track: ${fetchError.message}`,
+          details: fetchError.details || 'Database query failed'
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -110,8 +97,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    const tracks = await supabaseResponse.json()
-    const track = tracks[0]
+    const track = tracks?.[0]
 
     if (!track) {
       console.error('Track not found with ID:', trackId)
@@ -128,6 +114,9 @@ Deno.serve(async (req) => {
     }
 
     console.log('Creating Stripe checkout session for track:', track.title)
+
+    // Get the origin from the request headers, fallback to localhost for development
+    const origin = req.headers.get('origin') || 'http://localhost:5173'
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -147,8 +136,8 @@ Deno.serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/music?success=true&track=${trackId}`,
-      cancel_url: `${req.headers.get('origin')}/music?canceled=true`,
+      success_url: `${origin}/music?success=true&track=${trackId}`,
+      cancel_url: `${origin}/music?canceled=true`,
       metadata: {
         trackId: trackId,
       },
