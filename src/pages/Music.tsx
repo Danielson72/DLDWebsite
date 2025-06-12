@@ -1,16 +1,18 @@
-import { ChevronDown, Music as MusicIcon } from 'lucide-react';
+import { ChevronDown, Music as MusicIcon, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Track, Artist } from '../types/music';
 import { DotEdgeSides } from '../components/music/DotEdgeSides';
-import { PlayerContent } from '../components/music/PlayerContent';
-import { UploadSong } from '../components/music/UploadSong';
+import { AuthWrapper } from '../components/music/AuthWrapper';
+import { TrackUploadModal } from '../components/music/TrackUploadModal';
+import { TrackList } from '../components/music/TrackList';
 
 export function Music() {
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Query tracks when artist changes or refresh is triggered
   useEffect(() => {
@@ -45,13 +47,8 @@ export function Music() {
     setTracks([]);
   };
 
-  const handleUploadComplete = () => {
+  const handleTrackChange = () => {
     // Refresh the tracks for the currently selected artist
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleTrackDeleted = () => {
-    // Refresh the tracks after deletion
     setRefreshKey(prev => prev + 1);
   };
 
@@ -70,7 +67,7 @@ export function Music() {
     <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <section className="relative w-full h-screen overflow-hidden">
-        {/* New hero background */}
+        {/* Hero background */}
         <div 
           className="absolute inset-0 bg-center bg-contain bg-no-repeat"
           style={{ backgroundImage: "url('/ChatGPT Image Jun 6, 2025, 10_19_50 PM (1).png')" }}
@@ -105,7 +102,7 @@ export function Music() {
         </button>
       </section>
 
-      {/* Slide-out Player Panel */}
+      {/* Music Player Panel */}
       {selectedArtist && (
         <div
           className="fixed inset-0 flex items-center justify-center z-40 bg-black/50 backdrop-blur-sm"
@@ -131,18 +128,49 @@ export function Music() {
               <div className="h-1 w-20 bg-gradient-to-r from-yellow-400 to-green-400 rounded"></div>
             </div>
 
-            {/* Upload Component */}
-            <UploadSong onUploaded={handleUploadComplete} />
+            {/* Auth Wrapper */}
+            <AuthWrapper>
+              {(user) => (
+                <>
+                  {/* Upload Button for Authenticated Users */}
+                  {user && (
+                    <div className="mb-6">
+                      <button
+                        onClick={() => setShowUploadModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-medium rounded-lg transition-colors"
+                      >
+                        <Plus size={16} />
+                        Add New Track
+                      </button>
+                    </div>
+                  )}
 
-            {/* Loading State */}
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
-                <p className="text-yellow-200">Loading tracks...</p>
-              </div>
-            ) : (
-              <PlayerContent tracks={tracks} onTrackDeleted={handleTrackDeleted} />
-            )}
+                  {/* Loading State */}
+                  {loading ? (
+                    <div className="text-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+                      <p className="text-yellow-200">Loading tracks...</p>
+                    </div>
+                  ) : (
+                    <TrackList 
+                      tracks={tracks} 
+                      user={user}
+                      onTrackDeleted={handleTrackChange}
+                    />
+                  )}
+
+                  {/* Upload Modal */}
+                  {user && (
+                    <TrackUploadModal
+                      user={user}
+                      isOpen={showUploadModal}
+                      onClose={() => setShowUploadModal(false)}
+                      onSuccess={handleTrackChange}
+                    />
+                  )}
+                </>
+              )}
+            </AuthWrapper>
           </div>
         </div>
       )}
