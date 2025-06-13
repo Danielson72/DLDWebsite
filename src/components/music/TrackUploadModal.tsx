@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, X, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import { Artist } from '../../types/music';
@@ -208,11 +208,11 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
               />
             </div>
 
-            {/* Stripe Price ID */}
+            {/* Stripe Price ID with Enhanced Instructions */}
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-1">
                 Stripe Price ID *
-                <span className="text-xs text-gray-400 ml-2">(from your Stripe Dashboard)</span>
+                <span className="text-xs text-gray-400 ml-2">(One-time payment price only)</span>
               </label>
               <input
                 type="text"
@@ -222,9 +222,19 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
                 className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
                 required
               />
-              <p className="text-xs text-gray-400 mt-1">
-                Create a product and price in your Stripe Dashboard, then copy the Price ID here.
-              </p>
+              <div className="mt-2 p-3 bg-amber-900/20 border border-amber-500/30 rounded text-xs text-amber-200">
+                <div className="font-medium mb-2 flex items-center gap-2">
+                  <AlertCircle size={14} />
+                  Important: Create a ONE-TIME price in Stripe
+                </div>
+                <div className="space-y-1 text-amber-300/80">
+                  <p>1. Go to your <a href="https://dashboard.stripe.com/products" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline inline-flex items-center gap-1">Stripe Dashboard <ExternalLink size={12} /></a></p>
+                  <p>2. Create or select a product</p>
+                  <p>3. Add a price with <strong>Billing period: One time</strong> (NOT recurring)</p>
+                  <p>4. Copy the Price ID (starts with "price_") and paste it above</p>
+                  <p className="text-red-300 font-medium">⚠️ Do NOT use recurring/subscription prices - they will cause checkout errors</p>
+                </div>
+              </div>
             </div>
 
             {/* Description */}
