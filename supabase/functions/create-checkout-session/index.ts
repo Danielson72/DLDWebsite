@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     // Create Supabase client
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    const { default: Stripe } = await import('npm:stripe@14.21.0')
+    const { default: Stripe } = await import('npm:stripe@14.25.0')
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     })
