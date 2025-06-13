@@ -49,7 +49,10 @@ export function Music() {
     const trackId = urlParams.get('track');
     
     if (success === 'true' && trackId) {
-      alert('🎉 Payment successful! Thank you for your purchase!');
+      // Show success message with more details
+      const successMessage = `🎉 Payment successful! Thank you for your purchase!\n\nYour download should begin shortly. If not, please check your email for download instructions.`;
+      alert(successMessage);
+      
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -205,9 +208,19 @@ export function Music() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-500 mb-6">
               Daniel in the Lion's Den Music
             </h1>
-            <p className="text-xl text-emerald-400 max-w-2xl mx-auto">
+            <p className="text-xl text-emerald-400 max-w-2xl mx-auto mb-8">
               Support the mission by purchasing original Kingdom music crafted by Daniel in the Lion's Den.
             </p>
+            
+            {/* Payment Security Notice */}
+            <div className="bg-black/40 border border-green-500/30 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-sm text-green-300">
+                🔒 Secure payments powered by Stripe
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                All transactions are encrypted and secure
+              </p>
+            </div>
           </div>
         </div>
       </div>

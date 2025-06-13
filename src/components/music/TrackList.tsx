@@ -55,24 +55,34 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
   };
 
   const handleBuyTrack = async (track: Track) => {
+    // Check if track has a Stripe Price ID
+    if (!track.stripe_price_id) {
+      alert('This track is not available for purchase yet. Please contact support.');
+      return;
+    }
+
     setIsProcessing(true);
     
     try {
-      // Call the Supabase Edge Function
+      console.log('Initiating checkout for track:', track.title, 'with Price ID:', track.stripe_price_id);
+      
+      // Call the Supabase Edge Function with the track ID
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { trackId: track.id }
       });
 
       if (error) {
         console.error('Supabase function error:', error);
-        alert('Error processing payment. Please try again.');
+        alert(`Error processing payment: ${error.message || 'Please try again.'}`);
         return;
       }
 
       if (data?.url) {
+        console.log('Redirecting to Stripe Checkout:', data.url);
         // Redirect to Stripe Checkout
         window.location.href = data.url;
       } else {
+        console.error('No checkout URL returned:', data);
         alert('Error creating checkout session. Please try again.');
       }
     } catch (error) {
@@ -216,6 +226,12 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
                 {track.description && (
                   <p className="text-green-200/60 text-sm mt-1 line-clamp-2">{track.description}</p>
                 )}
+                {/* Show Stripe Price ID for debugging (remove in production) */}
+                {track.stripe_price_id && (
+                  <p className="text-xs text-gray-500 mt-1 font-mono">
+                    Price ID: {track.stripe_price_id}
+                  </p>
+                )}
               </div>
 
               {/* Controls */}
@@ -239,13 +255,24 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
                   <p className="text-green-200 font-mono font-bold text-lg">{formatPrice(track.price_cents)}</p>
                   <button
                     onClick={() => handleBuyTrack(track)}
-                    disabled={isProcessing}
-                    className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-500 disabled:cursor-not-allowed text-black font-bold px-3 py-1 rounded text-sm transition-colors"
+                    disabled={isProcessing || !track.stripe_price_id}
+                    className={`flex items-center gap-1 font-bold px-3 py-1 rounded text-sm transition-colors ${
+                      !track.stripe_price_id 
+                        ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                        : isProcessing
+                        ? 'bg-gray-500 cursor-not-allowed text-white'
+                        : 'bg-yellow-500 hover:bg-yellow-600 text-black'
+                    }`}
                   >
                     {isProcessing ? (
                       <>
                         <div className="animate-spin rounded-full h-3 w-3 border border-black border-t-transparent"></div>
                         Processing...
+                      </>
+                    ) : !track.stripe_price_id ? (
+                      <>
+                        <AlertTriangle size={14} />
+                        Unavailable
                       </>
                     ) : (
                       <>
