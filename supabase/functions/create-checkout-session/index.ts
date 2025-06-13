@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
 
     console.log('Fetching track with ID:', trackId)
 
-    // Fetch track from Supabase using the client
+    // Fetch track from Supabase including the stripe_price_id
     const { data: tracks, error: fetchError } = await supabase
       .from('music_tracks')
       .select('*')
@@ -113,25 +113,32 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log('Creating Stripe checkout session for track:', track.title)
+    // Check if track has a Stripe Price ID
+    if (!track.stripe_price_id) {
+      console.error('Track missing Stripe Price ID:', track.title)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Track configuration error',
+          details: `Track "${track.title}" is missing a Stripe Price ID. Please contact support.`
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
+
+    console.log('Creating Stripe checkout session for track:', track.title, 'with Price ID:', track.stripe_price_id)
 
     // Get the origin from the request headers, fallback to localhost for development
     const origin = req.headers.get('origin') || 'http://localhost:5173'
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session using the Price ID
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: track.title,
-              description: `${track.artist} - ${track.description || 'Digital Music Track'}`,
-              images: track.cover_url ? [track.cover_url] : [],
-            },
-            unit_amount: track.price_cents,
-          },
+          price: track.stripe_price_id, // Use the stored Stripe Price ID
           quantity: 1,
         },
       ],
@@ -140,7 +147,11 @@ Deno.serve(async (req) => {
       cancel_url: `${origin}/music?canceled=true`,
       metadata: {
         trackId: trackId,
+        trackTitle: track.title,
+        artist: track.artist,
       },
+      // Optional: Add customer email if user is authenticated
+      customer_creation: 'if_required',
     })
 
     console.log('Checkout session created successfully:', session.id)
@@ -162,6 +173,9 @@ Deno.serve(async (req) => {
     if (error.message?.includes('Invalid API Key')) {
       errorMessage = 'Invalid Stripe API key configuration'
       statusCode = 500
+    } else if (error.message?.includes('No such price')) {
+      errorMessage = 'Invalid Stripe Price ID. Please check your Stripe dashboard for the correct Price ID.'
+      statusCode = 400
     } else if (error.message?.includes('No such')) {
       errorMessage = 'Stripe resource not found'
       statusCode = 404
@@ -170,7 +184,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: errorMessage,
-        details: 'Check the Edge Function logs for more details. Ensure all required environment variables are set in Supabase Edge Functions settings.'
+        details: 'Check the Edge Function logs for more details. Ensure all required environment variables are set and Stripe Price IDs are valid.'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -4,6 +4,7 @@ export interface Track {
   artist: string;
   description: string | null;
   price_cents: number;
+  stripe_price_id: string | null;
   audio_full: string | null;
   audio_preview: string | null;
   cover_url: string | null;

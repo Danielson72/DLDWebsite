@@ -16,6 +16,7 @@ interface UploadForm {
   artist: Artist;
   description: string;
   price: string;
+  stripePriceId: string;
   audioFile: File | null;
   coverFile: File | null;
 }
@@ -28,6 +29,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
     artist: 'DLD',
     description: '',
     price: '0.99',
+    stripePriceId: '',
     audioFile: null,
     coverFile: null,
   });
@@ -40,6 +42,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
       artist: 'DLD',
       description: '',
       price: '0.99',
+      stripePriceId: '',
       audioFile: null,
       coverFile: null,
     });
@@ -56,6 +59,8 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
 
   const validateForm = (): string | null => {
     if (!form.title.trim()) return 'Title is required';
+    if (!form.stripePriceId.trim()) return 'Stripe Price ID is required';
+    if (!form.stripePriceId.startsWith('price_')) return 'Stripe Price ID must start with "price_"';
     if (!form.audioFile) return 'Audio file is required';
     if (form.audioFile.size > MAX_FILE_SIZE) {
       return `Audio file size (${formatFileSize(form.audioFile.size)}) exceeds maximum of ${formatFileSize(MAX_FILE_SIZE)}`;
@@ -110,7 +115,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
       const audioUrl = await uploadFile(form.audioFile!, 'tracks');
       const coverUrl = form.coverFile ? await uploadFile(form.coverFile, 'covers') : null;
 
-      // Insert track record
+      // Insert track record with Stripe Price ID
       const { error: dbError } = await supabase
         .from('music_tracks')
         .insert({
@@ -118,6 +123,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
           artist: form.artist,
           description: form.description.trim() || null,
           price_cents: Math.round(parseFloat(form.price) * 100),
+          stripe_price_id: form.stripePriceId.trim(),
           audio_full: audioUrl,
           audio_preview: audioUrl, // Using same file for preview
           cover_url: coverUrl,
@@ -201,6 +207,25 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
               />
             </div>
 
+            {/* Stripe Price ID */}
+            <div>
+              <label className="block text-sm font-medium text-amber-500 mb-1">
+                Stripe Price ID *
+                <span className="text-xs text-gray-400 ml-2">(from your Stripe Dashboard)</span>
+              </label>
+              <input
+                type="text"
+                value={form.stripePriceId}
+                onChange={(e) => setForm(prev => ({ ...prev, stripePriceId: e.target.value }))}
+                placeholder="price_1ABC123..."
+                className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
+                required
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Create a product and price in your Stripe Dashboard, then copy the Price ID here.
+              </p>
+            </div>
+
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-1">Description</label>
@@ -213,9 +238,12 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
               />
             </div>
 
-            {/* Price */}
+            {/* Price (for display only) */}
             <div>
-              <label className="block text-sm font-medium text-amber-500 mb-1">Price (USD) *</label>
+              <label className="block text-sm font-medium text-amber-500 mb-1">
+                Display Price (USD) *
+                <span className="text-xs text-gray-400 ml-2">(should match your Stripe price)</span>
+              </label>
               <input
                 type="number"
                 step="0.01"
