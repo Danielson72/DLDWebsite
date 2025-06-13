@@ -42,6 +42,25 @@ export function Music() {
     fetchTracks();
   }, [selectedArtist, refreshKey]);
 
+  // Check for successful payment on page load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const trackId = urlParams.get('track');
+    
+    if (success === 'true' && trackId) {
+      alert('🎉 Payment successful! Thank you for your purchase!');
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    if (urlParams.get('canceled') === 'true') {
+      alert('Payment was canceled. You can try again anytime.');
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const closePlayer = () => {
     setSelectedArtist(null);
     setTracks([]);

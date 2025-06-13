@@ -58,6 +58,7 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
     setIsProcessing(true);
     
     try {
+      // Call the Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { trackId: track.id }
       });
@@ -69,6 +70,7 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
       }
 
       if (data?.url) {
+        // Redirect to Stripe Checkout
         window.location.href = data.url;
       } else {
         alert('Error creating checkout session. Please try again.');
