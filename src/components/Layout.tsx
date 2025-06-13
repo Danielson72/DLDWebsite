@@ -1,6 +1,7 @@
 import { Menu } from 'lucide-react';
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Footer } from './Footer';
 
 export function Layout() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -8,7 +9,7 @@ export function Layout() {
   const isHomePage = location.pathname === '/' || location.pathname === '/welcome';
 
   return (
-    <div className={`relative min-h-screen ${!isHomePage ? 'matrix-background' : 'bg-black'}`}>
+    <div className={`relative min-h-screen flex flex-col ${!isHomePage ? 'matrix-background' : 'bg-black'}`}>
       {/* Fixed Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,9 +59,12 @@ export function Layout() {
       </nav>
 
       {/* Page Content */}
-      <main className="pt-16">
+      <main className="flex-1 pt-16">
         <Outlet />
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

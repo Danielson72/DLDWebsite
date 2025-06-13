@@ -195,7 +195,7 @@ export function Music() {
       )}
 
       {/* Content Section */}
-      <div id="music-content" className="relative bg-gradient-to-b from-green-900/20 to-black">
+      <div id="music-content" className="relative bg-gradient-to-b from-green-900/20 to-black pb-0">
         <div className="relative py-24 overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:16px_16px]"></div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
