@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Pause, ShoppingCart, Trash2, AlertTriangle } from 'lucide-react';
+import { Play, Pause, ShoppingCart, Trash2, AlertTriangle, Upload } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 import { Track } from '../../types/music';
 import { supabase } from '../../lib/supabase';
@@ -15,6 +15,7 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [deletingTrack, setDeletingTrack] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
   const formatPrice = (cents: number) => {
@@ -57,7 +58,7 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
   const handleBuyTrack = async (track: Track) => {
     // Check if track has a Stripe Price ID
     if (!track.stripe_price_id) {
-      alert('This track is not available for purchase yet. Please contact support.');
+      alert('This track is not available for purchase yet. Please check back soon!');
       return;
     }
 
@@ -85,11 +86,54 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
         console.error('No checkout URL returned:', data);
         alert('Error creating checkout session. Please try again.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unexpected error during checkout:', error);
       alert('An unexpected error occurred. Please try again.');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleCoverUpload = async (track: Track, file: File) => {
+    if (!user) return;
+    
+    setUploadingCover(track.id);
+
+    try {
+      // Upload cover image to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `covers/${track.id}-${Date.now()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('music')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('music')
+        .getPublicUrl(uploadData.path);
+
+      // Update track with new cover image URL
+      const { error: updateError } = await supabase
+        .from('music_tracks')
+        .update({ 
+          cover_image_url: publicUrl,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', track.id);
+
+      if (updateError) throw updateError;
+
+      // Refresh the track list
+      onTrackDeleted(); // This triggers a refresh
+
+    } catch (error: any) {
+      console.error('Cover upload error:', error);
+      alert(`Failed to upload cover: ${error.message}`);
+    } finally {
+      setUploadingCover(null);
     }
   };
 
@@ -136,6 +180,16 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
         }
       }
 
+      if (track.cover_image_url) {
+        const pathParts = track.cover_image_url.split('/music/');
+        if (pathParts.length === 2) {
+          const fileKey = decodeURIComponent(pathParts[1]);
+          deletePromises.push(
+            supabase.storage.from('music').remove([fileKey])
+          );
+        }
+      }
+
       // Execute storage deletions (ignore errors for missing files)
       await Promise.allSettled(deletePromises);
 
@@ -173,7 +227,7 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
       <div className="text-center py-12">
         <p className="text-yellow-200 text-lg">No tracks available yet.</p>
         <p className="text-yellow-200/60 text-sm mt-2">
-          {user ? 'Upload your first track to get started!' : 'Sign in to upload tracks.'}
+          {user ? 'Upload your first track to get started!' : 'Check back soon for new music releases.'}
         </p>
       </div>
     );
@@ -195,13 +249,41 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
           >
             <div className="flex items-center gap-4">
               {/* Cover Image */}
-              {track.cover_url && (
-                <img
-                  src={track.cover_url}
-                  alt={`${track.title} cover`}
-                  className="w-16 h-16 object-cover rounded"
-                />
-              )}
+              <div className="relative w-16 h-16 bg-gray-800 rounded overflow-hidden">
+                {track.cover_image_url || track.cover_url ? (
+                  <img
+                    src={track.cover_image_url || track.cover_url}
+                    alt={`${track.title} cover`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-500">
+                    <i className="fas fa-music text-xl"></i>
+                  </div>
+                )}
+                
+                {/* Cover Upload for Admin */}
+                {user && (
+                  <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleCoverUpload(track, file);
+                        }}
+                      />
+                      {uploadingCover === track.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border border-white border-t-transparent"></div>
+                      ) : (
+                        <Upload size={16} className="text-white" />
+                      )}
+                    </label>
+                  </div>
+                )}
+              </div>
               
               {/* Track Info */}
               <div className="flex-1 min-w-0">
@@ -225,12 +307,6 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
                 <p className="text-green-200/80 text-sm">{track.artist}</p>
                 {track.description && (
                   <p className="text-green-200/60 text-sm mt-1 line-clamp-2">{track.description}</p>
-                )}
-                {/* Show Stripe Price ID for debugging (remove in production) */}
-                {track.stripe_price_id && (
-                  <p className="text-xs text-gray-500 mt-1 font-mono">
-                    Price ID: {track.stripe_price_id}
-                  </p>
                 )}
               </div>
 
@@ -272,7 +348,7 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
                     ) : !track.stripe_price_id ? (
                       <>
                         <AlertTriangle size={14} />
-                        Unavailable
+                        Coming Soon
                       </>
                     ) : (
                       <>

@@ -115,7 +115,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
       const audioUrl = await uploadFile(form.audioFile!, 'tracks');
       const coverUrl = form.coverFile ? await uploadFile(form.coverFile, 'covers') : null;
 
-      // Insert track record with Stripe Price ID
+      // Insert track record with Stripe Price ID and cover image
       const { error: dbError } = await supabase
         .from('music_tracks')
         .insert({
@@ -127,6 +127,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
           audio_full: audioUrl,
           audio_preview: audioUrl, // Using same file for preview
           cover_url: coverUrl,
+          cover_image_url: coverUrl, // Use the same image for both fields
           user_id: user.id,
         });
 
@@ -278,13 +279,14 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
             {/* Cover Image */}
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-1">
-                Cover Image <span className="text-xs text-gray-400">(Optional)</span>
+                Cover Artwork * <span className="text-xs text-gray-400">(Custom artwork for this track)</span>
               </label>
               <input
                 type="file"
                 accept=".jpg,.jpeg,.png,.webp,.gif"
                 onChange={(e) => setForm(prev => ({ ...prev, coverFile: e.target.files?.[0] || null }))}
                 className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-amber-500 file:text-black file:text-sm hover:file:bg-amber-600"
+                required
               />
               {form.coverFile && (
                 <p className="text-xs text-green-300 mt-1">
