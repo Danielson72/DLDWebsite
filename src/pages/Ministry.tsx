@@ -1,4 +1,4 @@
-import { Heart, Users, BookOpen, Pray, ArrowRight } from 'lucide-react';
+import { Heart, Users, BookOpen, SprayCan as Pray, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHero } from '../components/PageHero';
 
