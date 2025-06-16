@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Home } from './pages/Home';
+import { Library } from './pages/Library';
 import { Ministry } from './pages/Ministry';
 import { Music } from './pages/Music';
 import { MusicUpload } from './pages/MusicUpload';
@@ -18,6 +19,7 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="music" element={<Music />} />
           <Route path="music/upload" element={<MusicUpload />} />
+          <Route path="library" element={<Library />} />
           <Route path="ministry" element={<Ministry />} />
           <Route path="services" element={<Services />} />
           <Route path="youtube" element={<YouTube />} />

@@ -1,22 +1,24 @@
 import { useState } from 'react';
-import { Play, Pause, ShoppingCart, Trash2, AlertTriangle, Upload } from 'lucide-react';
-import { User } from '@supabase/supabase-js';
+import { Play, Pause, ShoppingCart, Trash2, Upload, User } from 'lucide-react';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import { Track } from '../../types/music';
 import { supabase } from '../../lib/supabase';
+import { SignupModal } from '../auth/SignupModal';
 
 interface TrackListProps {
   tracks: Track[];
-  user: User | null;
+  user: SupabaseUser | null;
   onTrackDeleted: () => void;
 }
 
 export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingTrack, setProcessingTrack] = useState<string | null>(null);
   const [deletingTrack, setDeletingTrack] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [showSignupModal, setShowSignupModal] = useState(false);
 
   const formatPrice = (cents: number) => {
     return `$${(cents / 100).toFixed(2)}`;
@@ -56,20 +58,37 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
   };
 
   const handleBuyTrack = async (track: Track) => {
+    // Check if user is authenticated
+    if (!user) {
+      setShowSignupModal(true);
+      return;
+    }
+
     // Check if track has a Stripe Price ID
     if (!track.stripe_price_id) {
       alert('This track is not available for purchase yet. Please check back soon!');
       return;
     }
 
-    setIsProcessing(true);
+    setProcessingTrack(track.id);
     
     try {
       console.log('Initiating checkout for track:', track.title, 'with Price ID:', track.stripe_price_id);
       
-      // Call the Supabase Edge Function with the track ID
-      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { trackId: track.id }
+      // Get current session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setShowSignupModal(true);
+        return;
+      }
+      
+      // Call the new create-checkout Edge Function
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { 
+          price_id: track.stripe_price_id,
+          supabase_uid: session.user.id,
+          track_id: track.id
+        }
       });
 
       if (error) {
@@ -90,7 +109,7 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
       console.error('Unexpected error during checkout:', error);
       alert('An unexpected error occurred. Please try again.');
     } finally {
-      setIsProcessing(false);
+      setProcessingTrack(null);
     }
   };
 
@@ -331,24 +350,28 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
                   <p className="text-green-200 font-mono font-bold text-lg">{formatPrice(track.price_cents)}</p>
                   <button
                     onClick={() => handleBuyTrack(track)}
-                    disabled={isProcessing || !track.stripe_price_id}
+                    disabled={processingTrack === track.id || !track.stripe_price_id}
                     className={`flex items-center gap-1 font-bold px-3 py-1 rounded text-sm transition-colors ${
-                      !track.stripe_price_id 
-                        ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                        : isProcessing
+                      processingTrack === track.id
                         ? 'bg-gray-500 cursor-not-allowed text-white'
-                        : 'bg-yellow-500 hover:bg-yellow-600 text-black'
+                        : !track.stripe_price_id 
+                        ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                        : user
+                        ? 'bg-yellow-500 hover:bg-yellow-600 text-black'
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
                     }`}
                   >
-                    {isProcessing ? (
+                    {processingTrack === track.id ? (
                       <>
                         <div className="animate-spin rounded-full h-3 w-3 border border-black border-t-transparent"></div>
                         Processing...
                       </>
                     ) : !track.stripe_price_id ? (
+                      'Coming Soon'
+                    ) : !user ? (
                       <>
-                        <AlertTriangle size={14} />
-                        Coming Soon
+                        <User size={14} />
+                        Sign Up & Buy
                       </>
                     ) : (
                       <>
@@ -380,6 +403,17 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
           </div>
         ))}
       </div>
+
+      {/* Signup Modal */}
+      <SignupModal
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        onSuccess={() => {
+          setShowSignupModal(false);
+          // Refresh the page to update auth state
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }
