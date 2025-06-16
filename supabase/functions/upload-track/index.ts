@@ -6,6 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+const HARDCODED_STRIPE_PRICE_ID = 'price_1RZeCfGKbDbFMYBRBxzujgeH'; // $0.99 price
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -43,7 +45,6 @@ Deno.serve(async (req) => {
       artist: formData.get('artist') as string,
       description: formData.get('description') as string,
       price_cents: parseInt(formData.get('price_cents') as string),
-      stripe_price_id: formData.get('stripe_price_id') as string,
     }
 
     const audioFile = formData.get('audio_file') as File
@@ -83,16 +84,18 @@ Deno.serve(async (req) => {
       coverUrl = publicUrl
     }
 
-    // Insert track record
+    // Insert track record with hardcoded Stripe price ID and is_active = true
     const { data: track, error: dbError } = await supabase
       .from('music_tracks')
       .insert({
         ...trackData,
+        stripe_price_id: HARDCODED_STRIPE_PRICE_ID, // Hardcoded Stripe price ID
         audio_full: audioUrl,
         audio_preview: audioUrl,
         cover_url: coverUrl,
         cover_image_url: coverUrl,
         user_id: user.id,
+        is_active: true, // Explicitly set to true
       })
       .select()
       .single()

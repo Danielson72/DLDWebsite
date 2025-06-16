@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, X, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react';
+import { Upload, X, AlertCircle, CheckCircle } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase';
 import { Artist } from '../../types/music';
@@ -16,12 +16,12 @@ interface UploadForm {
   artist: Artist;
   description: string;
   price: string;
-  stripePriceId: string;
   audioFile: File | null;
   coverFile: File | null;
 }
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const HARDCODED_STRIPE_PRICE_ID = 'price_1RZeCfGKbDbFMYBRBxzujgeH'; // $0.99 price
 
 export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUploadModalProps) {
   const [form, setForm] = useState<UploadForm>({
@@ -29,7 +29,6 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
     artist: 'DLD',
     description: '',
     price: '0.99',
-    stripePriceId: '',
     audioFile: null,
     coverFile: null,
   });
@@ -42,7 +41,6 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
       artist: 'DLD',
       description: '',
       price: '0.99',
-      stripePriceId: '',
       audioFile: null,
       coverFile: null,
     });
@@ -59,8 +57,6 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
 
   const validateForm = (): string | null => {
     if (!form.title.trim()) return 'Title is required';
-    if (!form.stripePriceId.trim()) return 'Stripe Price ID is required';
-    if (!form.stripePriceId.startsWith('price_')) return 'Stripe Price ID must start with "price_"';
     if (!form.audioFile) return 'Audio file is required';
     if (form.audioFile.size > MAX_FILE_SIZE) {
       return `Audio file size (${formatFileSize(form.audioFile.size)}) exceeds maximum of ${formatFileSize(MAX_FILE_SIZE)}`;
@@ -115,7 +111,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
       const audioUrl = await uploadFile(form.audioFile!, 'tracks');
       const coverUrl = form.coverFile ? await uploadFile(form.coverFile, 'covers') : null;
 
-      // Insert track record with Stripe Price ID and cover image
+      // Insert track record with hardcoded Stripe Price ID and is_active = true
       const { error: dbError } = await supabase
         .from('music_tracks')
         .insert({
@@ -123,12 +119,13 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
           artist: form.artist,
           description: form.description.trim() || null,
           price_cents: Math.round(parseFloat(form.price) * 100),
-          stripe_price_id: form.stripePriceId.trim(),
+          stripe_price_id: HARDCODED_STRIPE_PRICE_ID, // Hardcoded Stripe price ID
           audio_full: audioUrl,
           audio_preview: audioUrl, // Using same file for preview
           cover_url: coverUrl,
           cover_image_url: coverUrl, // Use the same image for both fields
           user_id: user.id,
+          is_active: true, // Explicitly set to true
         });
 
       if (dbError) throw dbError;
@@ -208,35 +205,6 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
               />
             </div>
 
-            {/* Stripe Price ID with Enhanced Instructions */}
-            <div>
-              <label className="block text-sm font-medium text-amber-500 mb-1">
-                Stripe Price ID *
-                <span className="text-xs text-gray-400 ml-2">(One-time payment price only)</span>
-              </label>
-              <input
-                type="text"
-                value={form.stripePriceId}
-                onChange={(e) => setForm(prev => ({ ...prev, stripePriceId: e.target.value }))}
-                placeholder="price_1ABC123..."
-                className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
-                required
-              />
-              <div className="mt-2 p-3 bg-amber-900/20 border border-amber-500/30 rounded text-xs text-amber-200">
-                <div className="font-medium mb-2 flex items-center gap-2">
-                  <AlertCircle size={14} />
-                  Important: Create a ONE-TIME price in Stripe
-                </div>
-                <div className="space-y-1 text-amber-300/80">
-                  <p>1. Go to your <a href="https://dashboard.stripe.com/products" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline inline-flex items-center gap-1">Stripe Dashboard <ExternalLink size={12} /></a></p>
-                  <p>2. Create or select a product</p>
-                  <p>3. Add a price with <strong>Billing period: One time</strong> (NOT recurring)</p>
-                  <p>4. Copy the Price ID (starts with "price_") and paste it above</p>
-                  <p className="text-red-300 font-medium">⚠️ Do NOT use recurring/subscription prices - they will cause checkout errors</p>
-                </div>
-              </div>
-            </div>
-
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-1">Description</label>
@@ -253,7 +221,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-1">
                 Display Price (USD) *
-                <span className="text-xs text-gray-400 ml-2">(should match your Stripe price)</span>
+                <span className="text-xs text-gray-400 ml-2">(automatically set to $0.99)</span>
               </label>
               <input
                 type="number"
@@ -265,6 +233,9 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
                 className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
                 required
               />
+              <div className="mt-1 p-2 bg-green-900/20 border border-green-500/30 rounded text-xs text-green-200">
+                <p>💡 All tracks are automatically configured with Stripe payment processing at $0.99</p>
+              </div>
             </div>
 
             {/* Audio File */}
