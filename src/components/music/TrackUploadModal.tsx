@@ -33,7 +33,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
     coverFile: null,
   });
   const [uploading, setUploading] = useState(false);
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   const resetForm = () => {
     setForm({
@@ -94,6 +94,28 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
     return publicUrl;
   };
 
+  const generatePreview = async (trackId: string) => {
+    try {
+      setStatus({ type: 'info', message: 'Generating 30-second preview...' });
+
+      const { data, error } = await supabase.functions.invoke('make-preview', {
+        body: { trackId }
+      });
+
+      if (error) {
+        console.warn('Preview generation failed:', error);
+        // Don't fail the upload for preview generation errors
+        setStatus({ type: 'info', message: 'Track uploaded successfully. Preview generation in progress...' });
+      } else {
+        console.log('Preview generated:', data);
+        setStatus({ type: 'success', message: '✅ Track uploaded with 30-second preview!' });
+      }
+    } catch (error) {
+      console.warn('Preview generation error:', error);
+      // Don't fail the upload for preview generation errors
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -104,15 +126,17 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
     }
 
     setUploading(true);
-    setStatus(null);
+    setStatus({ type: 'info', message: 'Uploading files...' });
 
     try {
       // Upload files
       const audioUrl = await uploadFile(form.audioFile!, 'tracks');
       const coverUrl = form.coverFile ? await uploadFile(form.coverFile, 'covers') : null;
 
+      setStatus({ type: 'info', message: 'Saving track information...' });
+
       // Insert track record with hardcoded Stripe Price ID and is_active = true
-      const { error: dbError } = await supabase
+      const { data: insertedTrack, error: dbError } = await supabase
         .from('music_tracks')
         .insert({
           title: form.title.trim(),
@@ -126,11 +150,17 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
           cover_image_url: coverUrl, // Use the same image for both fields
           user_id: user.id,
           is_active: true, // Explicitly set to true
-        });
+        })
+        .select()
+        .single();
 
       if (dbError) throw dbError;
 
-      setStatus({ type: 'success', message: '✅ Track uploaded successfully!' });
+      // Generate preview clip after successful upload
+      if (insertedTrack) {
+        await generatePreview(insertedTrack.id);
+      }
+
       setTimeout(() => {
         onSuccess();
         handleClose();
@@ -169,7 +199,9 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
             <div className={`mb-4 p-3 rounded flex items-center gap-2 ${
               status.type === 'success' 
                 ? 'bg-green-900/20 text-green-300 border border-green-500/30' 
-                : 'bg-red-900/20 text-red-300 border border-red-500/30'
+                : status.type === 'error'
+                ? 'bg-red-900/20 text-red-300 border border-red-500/30'
+                : 'bg-blue-900/20 text-blue-300 border border-blue-500/30'
             }`}>
               {status.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
               {status.message}
@@ -235,6 +267,7 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
               />
               <div className="mt-1 p-2 bg-green-900/20 border border-green-500/30 rounded text-xs text-green-200">
                 <p>💡 All tracks are automatically configured with Stripe payment processing at $0.99</p>
+                <p>🎵 30-second preview clips will be generated automatically after upload</p>
               </div>
             </div>
 

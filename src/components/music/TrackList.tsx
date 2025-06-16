@@ -24,7 +24,28 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
     return `$${(cents / 100).toFixed(2)}`;
   };
 
+  const getAudioUrl = (track: Track) => {
+    // For public users, use preview_url (30-sec clip), fallback to audio_preview, then audio_full
+    if (!user) {
+      return track.preview_url || track.audio_preview || track.audio_full;
+    }
+    // For authenticated users (admin), use full audio
+    return track.audio_full || track.audio_preview;
+  };
+
+  const isPreviewAudio = (track: Track) => {
+    const audioUrl = getAudioUrl(track);
+    return !user && (audioUrl === track.preview_url || audioUrl === track.audio_preview);
+  };
+
   const handlePlayPause = (track: Track) => {
+    const audioUrl = getAudioUrl(track);
+    
+    if (!audioUrl) {
+      alert('Audio not available for this track');
+      return;
+    }
+
     if (currentTrack?.id === track.id) {
       // Same track - toggle play/pause
       if (audioElement) {
@@ -41,19 +62,17 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
         audioElement.currentTime = 0;
       }
       
-      if (track.audio_preview) {
-        const audio = new Audio(track.audio_preview);
-        audio.addEventListener('play', () => setIsPlaying(true));
-        audio.addEventListener('pause', () => setIsPlaying(false));
-        audio.addEventListener('ended', () => {
-          setIsPlaying(false);
-          setCurrentTrack(null);
-        });
-        
-        setAudioElement(audio);
-        setCurrentTrack(track);
-        audio.play();
-      }
+      const audio = new Audio(audioUrl);
+      audio.addEventListener('play', () => setIsPlaying(true));
+      audio.addEventListener('pause', () => setIsPlaying(false));
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+        setCurrentTrack(null);
+      });
+      
+      setAudioElement(audio);
+      setCurrentTrack(track);
+      audio.play();
     }
   };
 
@@ -181,6 +200,16 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
       
       if (track.audio_preview && track.audio_preview !== track.audio_full) {
         const pathParts = track.audio_preview.split('/music/');
+        if (pathParts.length === 2) {
+          const fileKey = decodeURIComponent(pathParts[1]);
+          deletePromises.push(
+            supabase.storage.from('music').remove([fileKey])
+          );
+        }
+      }
+
+      if (track.preview_url) {
+        const pathParts = track.preview_url.split('/music/');
         if (pathParts.length === 2) {
           const fileKey = decodeURIComponent(pathParts[1]);
           deletePromises.push(
@@ -332,17 +361,24 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
               {/* Controls */}
               <div className="flex items-center gap-3">
                 {/* Play/Pause Button */}
-                {track.audio_preview && (
-                  <button
-                    onClick={() => handlePlayPause(track)}
-                    className="flex items-center justify-center w-10 h-10 bg-yellow-500 hover:bg-yellow-600 text-black rounded-full transition-colors"
-                  >
-                    {currentTrack?.id === track.id && isPlaying ? (
-                      <Pause size={16} />
-                    ) : (
-                      <Play size={16} />
+                {getAudioUrl(track) && (
+                  <div className="flex flex-col items-center gap-1">
+                    <button
+                      onClick={() => handlePlayPause(track)}
+                      className="flex items-center justify-center w-10 h-10 bg-yellow-500 hover:bg-yellow-600 text-black rounded-full transition-colors"
+                    >
+                      {currentTrack?.id === track.id && isPlaying ? (
+                        <Pause size={16} />
+                      ) : (
+                        <Play size={16} />
+                      )}
+                    </button>
+                    {isPreviewAudio(track) && (
+                      <span className="text-xs text-yellow-400 font-medium">
+                        {track.preview_url ? 'Preview' : 'Clip'}
+                      </span>
                     )}
-                  </button>
+                  </div>
                 )}
 
                 {/* Price and Buy Button */}
@@ -385,10 +421,20 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
             </div>
 
             {/* Audio Player for Current Track */}
-            {currentTrack?.id === track.id && track.audio_preview && (
+            {currentTrack?.id === track.id && getAudioUrl(track) && (
               <div className="mt-4 pt-4 border-t border-green-500/20">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-yellow-300">
+                    {isPreviewAudio(track) ? '🎵 Preview (30 seconds)' : '🎵 Full Track'}
+                  </span>
+                  {!user && (
+                    <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-1 rounded">
+                      Sign up to hear full tracks
+                    </span>
+                  )}
+                </div>
                 <audio
-                  src={track.audio_preview}
+                  src={getAudioUrl(track)}
                   controls
                   className="w-full accent-yellow-400"
                   onPlay={() => setIsPlaying(true)}
