@@ -18,14 +18,15 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
+          <Route path="ministry" element={<Ministry />} />
+          <Route path="services" element={<Services />} />
           <Route path="music" element={<Music />} />
           <Route path="music/upload" element={<MusicUpload />} />
           <Route path="library" element={<Library />} />
-          <Route path="register" element={<Register />} />
-          <Route path="ministry" element={<Ministry />} />
-          <Route path="services" element={<Services />} />
           <Route path="youtube" element={<YouTube />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="register" element={<Register />} />
+          <Route path="*" element={<Home />} />
         </Route>
       </Routes>
     </BrowserRouter>
