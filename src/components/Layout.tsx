@@ -48,6 +48,14 @@ export function Layout() {
                   )}
                 </Link>
               ))}
+              
+              {/* Register Button */}
+              <Link
+                to="/register"
+                className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-2 rounded-lg transition-colors"
+              >
+                Register
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -80,6 +88,15 @@ export function Layout() {
                   <div className="text-xs text-gray-400 mt-1">{item.description}</div>
                 </Link>
               ))}
+              
+              {/* Mobile Register Button */}
+              <Link
+                to="/register"
+                onClick={() => setIsMenuOpen(false)}
+                className="block mx-3 mt-4 bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-3 rounded-lg transition-colors text-center"
+              >
+                Register Account
+              </Link>
             </div>
           </div>
         )}

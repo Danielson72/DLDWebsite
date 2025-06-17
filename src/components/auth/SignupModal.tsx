@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { X, User, Mail, Phone, LogIn, UserPlus } from 'lucide-react';
+import { X, LogIn, UserPlus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { RegistrationForm } from './RegistrationForm';
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -9,16 +10,15 @@ interface SignupModalProps {
 }
 
 export function SignupModal({ isOpen, onClose, onSuccess }: SignupModalProps) {
+  const [showFullRegistration, setShowFullRegistration] = useState(false);
   const [isSignUp, setIsSignUp] = useState(true);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     email: '',
     password: '',
-    displayName: '',
-    phone: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleQuickAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -27,12 +27,6 @@ export function SignupModal({ isOpen, onClose, onSuccess }: SignupModalProps) {
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
-          options: {
-            data: {
-              display_name: form.displayName,
-              phone: form.phone,
-            },
-          },
         });
 
         if (error) throw error;
@@ -53,7 +47,7 @@ export function SignupModal({ isOpen, onClose, onSuccess }: SignupModalProps) {
       }
 
       onClose();
-      setForm({ email: '', password: '', displayName: '', phone: '' });
+      setForm({ email: '', password: '' });
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -69,138 +63,122 @@ export function SignupModal({ isOpen, onClose, onSuccess }: SignupModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-black/90 border border-green-500/30 rounded-xl w-full max-w-md">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              {isSignUp ? <UserPlus size={24} className="text-amber-500" /> : <LogIn size={24} className="text-amber-500" />}
-              <h2 className="text-xl font-bold text-amber-500">
-                {isSignUp ? 'Create Account' : 'Sign In'}
-              </h2>
+      {showFullRegistration ? (
+        <RegistrationForm
+          onSuccess={() => {
+            onSuccess();
+            onClose();
+          }}
+          onCancel={() => setShowFullRegistration(false)}
+          isModal={true}
+        />
+      ) : (
+        <div className="bg-black/90 border border-green-500/30 rounded-xl w-full max-w-md">
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                {isSignUp ? <UserPlus size={24} className="text-amber-500" /> : <LogIn size={24} className="text-amber-500" />}
+                <h2 className="text-xl font-bold text-amber-500">
+                  {isSignUp ? 'Quick Sign Up' : 'Sign In'}
+                </h2>
+              </div>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X size={24} />
+              </button>
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <X size={24} />
-            </button>
-          </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Display Name - Only for signup */}
-            {isSignUp && (
+            {/* Quick Auth Form */}
+            <form onSubmit={handleQuickAuth} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-amber-500 mb-1">
-                  <User size={16} className="inline mr-2" />
-                  Full Name *
+                  Email Address *
                 </label>
                 <input
-                  type="text"
-                  value={form.displayName}
-                  onChange={(e) => handleInputChange('displayName', e.target.value)}
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
                   className="w-full p-3 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
-                  placeholder="Your full name"
-                  required={isSignUp}
+                  placeholder="your@email.com"
+                  required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-amber-500 mb-1">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  className="w-full p-3 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
+                  placeholder="Your password"
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-3 rounded transition-colors flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
+                ) : (
+                  <>
+                    {isSignUp ? <UserPlus size={20} /> : <LogIn size={20} />}
+                    {isSignUp ? 'Quick Sign Up' : 'Sign In'}
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Advanced Registration Option */}
+            {isSignUp && (
+              <div className="mt-4">
+                <button
+                  onClick={() => setShowFullRegistration(true)}
+                  className="w-full bg-transparent border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black font-medium py-2 rounded transition-colors"
+                >
+                  Complete Registration Form
+                </button>
               </div>
             )}
 
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-amber-500 mb-1">
-                <Mail size={16} className="inline mr-2" />
-                Email Address *
-              </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full p-3 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
-                placeholder="your@email.com"
-                required
-              />
+            {/* Toggle between sign up and sign in */}
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-green-300 hover:text-green-200 text-sm"
+              >
+                {isSignUp 
+                  ? 'Already have an account? Sign in' 
+                  : "Don't have an account? Sign up"
+                }
+              </button>
             </div>
 
-            {/* Phone - Only for signup */}
+            {/* Benefits */}
             {isSignUp && (
-              <div>
-                <label className="block text-sm font-medium text-amber-500 mb-1">
-                  <Phone size={16} className="inline mr-2" />
-                  Phone (Optional)
-                </label>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className="w-full p-3 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
-                  placeholder="+1 (555) 123-4567"
-                />
+              <div className="mt-4 p-3 bg-green-900/20 border border-green-500/30 rounded text-xs text-green-200">
+                <p className="font-medium mb-1">Why create an account?</p>
+                <ul className="space-y-1 text-green-300/80">
+                  <li>• Instant access to purchased music</li>
+                  <li>• Track your music library</li>
+                  <li>• Re-download tracks anytime</li>
+                  <li>• Get notified of new releases</li>
+                </ul>
               </div>
             )}
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-amber-500 mb-1">
-                Password *
-              </label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                className="w-full p-3 bg-black/60 border border-green-500/30 rounded text-white placeholder-gray-400 focus:border-amber-500 focus:outline-none"
-                placeholder="Your password"
-                required
-                minLength={6}
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-3 rounded transition-colors flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-              ) : (
-                <>
-                  {isSignUp ? <UserPlus size={20} /> : <LogIn size={20} />}
-                  {isSignUp ? 'Create Account' : 'Sign In'}
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Toggle between sign up and sign in */}
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-green-300 hover:text-green-200 text-sm"
-            >
-              {isSignUp 
-                ? 'Already have an account? Sign in' 
-                : "Don't have an account? Sign up"
-              }
-            </button>
           </div>
-
-          {/* Sign up benefits */}
-          {isSignUp && (
-            <div className="mt-4 p-3 bg-green-900/20 border border-green-500/30 rounded text-xs text-green-200">
-              <p className="font-medium mb-1">Why create an account?</p>
-              <ul className="space-y-1 text-green-300/80">
-                <li>• Instant access to purchased music</li>
-                <li>• Track your music library</li>
-                <li>• Re-download tracks anytime</li>
-                <li>• Get notified of new releases</li>
-              </ul>
-            </div>
-          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
