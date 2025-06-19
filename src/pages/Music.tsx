@@ -6,6 +6,8 @@ import { DotEdgeSides } from '../components/music/DotEdgeSides';
 import { AuthWrapper } from '../components/music/AuthWrapper';
 import { TrackUploadModal } from '../components/music/TrackUploadModal';
 import { TrackList } from '../components/music/TrackList';
+import { ProductCard } from '../components/ProductCard';
+import { products } from '../stripe-config';
 
 export function Music() {
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
@@ -201,26 +203,81 @@ export function Music() {
       <div id="music-content" className="relative bg-gradient-to-b from-green-900/20 to-black pb-0">
         <div className="relative py-24 overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:16px_16px]"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="flex justify-center mb-6">
-              <MusicIcon size={48} className="text-amber-500" />
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-500 mb-6">
-              Daniel in the Lion's Den Music
-            </h1>
-            <p className="text-xl text-emerald-400 max-w-2xl mx-auto mb-8">
-              Support the mission by purchasing original Kingdom music crafted by Daniel in the Lion's Den.
-            </p>
-            
-            {/* Payment Security Notice */}
-            <div className="bg-black/40 border border-green-500/30 rounded-lg p-4 max-w-md mx-auto">
-              <p className="text-sm text-green-300">
-                🔒 Secure payments powered by Stripe
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="flex justify-center mb-6">
+                <MusicIcon size={48} className="text-amber-500" />
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-500 mb-6">
+                Daniel in the Lion's Den Music
+              </h1>
+              <p className="text-xl text-emerald-400 max-w-2xl mx-auto mb-8">
+                Support the mission by purchasing original Kingdom music crafted by Daniel in the Lion's Den.
               </p>
-              <p className="text-xs text-gray-400 mt-1">
-                All transactions are encrypted and secure
-              </p>
+              
+              {/* Payment Security Notice */}
+              <div className="bg-black/40 border border-green-500/30 rounded-lg p-4 max-w-md mx-auto mb-12">
+                <p className="text-sm text-green-300">
+                  🔒 Secure payments powered by Stripe
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  All transactions are encrypted and secure
+                </p>
+              </div>
             </div>
+
+            {/* Music Products Section */}
+            <AuthWrapper>
+              {(user) => (
+                <div className="mb-16">
+                  <h2 className="text-3xl font-bold text-amber-500 mb-8 text-center">
+                    Premium Music Downloads
+                  </h2>
+                  <p className="text-center text-emerald-400 mb-8 max-w-3xl mx-auto">
+                    Each purchase directly supports our ministry and community outreach programs. 
+                    Get instant access to high-quality Gospel Hip Hop tracks.
+                  </p>
+                  
+                  {/* Products Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    {products.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+
+                  {/* Features */}
+                  <div className="bg-gradient-to-r from-amber-500/10 to-green-500/10 border border-amber-500/30 rounded-xl p-8">
+                    <h3 className="text-2xl font-bold text-amber-500 mb-6 text-center">
+                      What You Get
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center">
+                        <div className="text-3xl mb-3">🎵</div>
+                        <h4 className="text-lg font-bold text-amber-500 mb-2">High Quality Audio</h4>
+                        <p className="text-gray-300 text-sm">
+                          Premium 320kbps MP3 files for the best listening experience
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl mb-3">📚</div>
+                        <h4 className="text-lg font-bold text-amber-500 mb-2">Library Access</h4>
+                        <p className="text-gray-300 text-sm">
+                          Access your purchased music anytime from your personal library
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl mb-3">🔒</div>
+                        <h4 className="text-lg font-bold text-amber-500 mb-2">Secure Payment</h4>
+                        <p className="text-gray-300 text-sm">
+                          Safe and secure transactions powered by Stripe
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </AuthWrapper>
           </div>
         </div>
       </div>

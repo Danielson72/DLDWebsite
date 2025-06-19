@@ -10,7 +10,6 @@ import { Music } from './pages/Music';
 import { MusicUpload } from './pages/MusicUpload';
 import { Register } from './pages/Register';
 import { Services } from './pages/Services';
-import { Shop } from './pages/Shop';
 import { Success } from './pages/Success';
 import { YouTube } from './pages/YouTube';
 
@@ -25,7 +24,6 @@ function App() {
           <Route path="services" element={<Services />} />
           <Route path="music" element={<Music />} />
           <Route path="music/upload" element={<MusicUpload />} />
-          <Route path="shop" element={<Shop />} />
           <Route path="library" element={<Library />} />
           <Route path="youtube" element={<YouTube />} />
           <Route path="contact" element={<Contact />} />

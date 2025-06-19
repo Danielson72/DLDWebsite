@@ -11,7 +11,6 @@ export function Layout() {
   const navigationItems = [
     { path: '/about', label: 'About', description: 'Learn about Daniel Alvarez and his mission' },
     { path: '/music', label: 'Music', description: 'Kingdom music and digital downloads' },
-    { path: '/shop', label: 'Shop', description: 'Purchase premium music downloads' },
     { path: '/library', label: 'Library', description: 'Your purchased music collection' },
     { path: '/ministry', label: 'Ministry', description: 'Spiritual guidance and community outreach' },
     { path: '/services', label: 'Services', description: 'Worship services and events schedule' },

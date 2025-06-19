@@ -31,7 +31,7 @@ export function StripeCheckout({ productId, className = '', children }: StripeCh
       }
 
       const origin = window.location.origin;
-      const successUrl = `${origin}/success?session_id={CHECKOUT_SESSION_ID}`;
+      const successUrl = `${origin}/library?success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${origin}/music?canceled=true`;
 
       // Call the Stripe checkout edge function
