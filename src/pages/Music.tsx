@@ -25,6 +25,7 @@ export function Music() {
           .from('music_tracks')
           .select('*')
           .eq('artist', selectedArtist)
+          .eq('is_active', true) // Only fetch active tracks
           .order('created_at', { ascending: false });
         
         if (error) {

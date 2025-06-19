@@ -19,4 +19,3 @@ export interface Track {
 }
 
 export type Artist = 'DLD' | 'The Tru Witnesses' | 'Waves From IAM';
-</invoke>

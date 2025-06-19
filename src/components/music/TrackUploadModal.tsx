@@ -219,8 +219,8 @@ export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUplo
                 className="w-full p-2 bg-black/60 border border-green-500/30 rounded text-white focus:border-amber-500 focus:outline-none"
               >
                 <option value="DLD">Daniel in the Lion's Den</option>
-                <option value="True Witnesses">The Tru Witnesses</option>
-                <option value="Project 3">Project 3</option>
+                <option value="The Tru Witnesses">The Tru Witnesses</option>
+                <option value="Waves From IAM">Waves From IAM</option>
               </select>
             </div>
 
