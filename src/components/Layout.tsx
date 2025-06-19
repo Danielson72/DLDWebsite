@@ -11,6 +11,7 @@ export function Layout() {
   const navigationItems = [
     { path: '/about', label: 'About', description: 'Learn about Daniel Alvarez and his mission' },
     { path: '/music', label: 'Music', description: 'Kingdom music and digital downloads' },
+    { path: '/shop', label: 'Shop', description: 'Purchase premium music downloads' },
     { path: '/library', label: 'Library', description: 'Your purchased music collection' },
     { path: '/ministry', label: 'Ministry', description: 'Spiritual guidance and community outreach' },
     { path: '/services', label: 'Services', description: 'Worship services and events schedule' },
@@ -49,13 +50,21 @@ export function Layout() {
                 </Link>
               ))}
               
-              {/* Register Button */}
-              <Link
-                to="/register"
-                className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-2 rounded-lg transition-colors"
-              >
-                Register
-              </Link>
+              {/* Auth Buttons */}
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="text-white hover:text-amber-500 transition-colors font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-2 rounded-lg transition-colors"
+                >
+                  Register
+                </Link>
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -89,14 +98,23 @@ export function Layout() {
                 </Link>
               ))}
               
-              {/* Mobile Register Button */}
-              <Link
-                to="/register"
-                onClick={() => setIsMenuOpen(false)}
-                className="block mx-3 mt-4 bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-3 rounded-lg transition-colors text-center"
-              >
-                Register Account
-              </Link>
+              {/* Mobile Auth Buttons */}
+              <div className="border-t border-green-500/20 pt-3 mt-3 space-y-2">
+                <Link
+                  to="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block mx-3 text-center bg-transparent border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black font-bold px-4 py-3 rounded-lg transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block mx-3 text-center bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-3 rounded-lg transition-colors"
+                >
+                  Register Account
+                </Link>
+              </div>
             </div>
           </div>
         )}

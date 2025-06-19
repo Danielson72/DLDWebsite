@@ -4,11 +4,14 @@ import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Home } from './pages/Home';
 import { Library } from './pages/Library';
+import { Login } from './pages/Login';
 import { Ministry } from './pages/Ministry';
 import { Music } from './pages/Music';
 import { MusicUpload } from './pages/MusicUpload';
 import { Register } from './pages/Register';
 import { Services } from './pages/Services';
+import { Shop } from './pages/Shop';
+import { Success } from './pages/Success';
 import { YouTube } from './pages/YouTube';
 
 function App() {
@@ -22,10 +25,13 @@ function App() {
           <Route path="services" element={<Services />} />
           <Route path="music" element={<Music />} />
           <Route path="music/upload" element={<MusicUpload />} />
+          <Route path="shop" element={<Shop />} />
           <Route path="library" element={<Library />} />
           <Route path="youtube" element={<YouTube />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="success" element={<Success />} />
           <Route path="*" element={<Home />} />
         </Route>
       </Routes>
