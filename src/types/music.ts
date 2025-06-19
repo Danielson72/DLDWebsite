@@ -14,7 +14,9 @@ export interface Track {
   created_at: string | null;
   updated_at: string | null;
   user_id: string | null;
+  currency: string | null;
   is_active: boolean | null;
 }
 
-export type Artist = 'DLD' | 'True Witnesses' | 'Project 3';
+export type Artist = 'DLD' | 'The Tru Witnesses' | 'Waves From IAM';
+</invoke>
