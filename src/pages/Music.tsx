@@ -13,6 +13,7 @@ export function Music() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [processingTrack, setProcessingTrack] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   // Fetch all tracks on component mount
   useEffect(() => {
@@ -64,6 +65,15 @@ export function Music() {
   const getAudioUrl = (track: Track) => {
     // For now, use preview_url if available, otherwise audio_preview, then audio_full
     return track.preview_url || track.audio_preview || track.audio_full;
+  };
+
+  const getCoverImageUrl = (track: Track) => {
+    // Prioritize cover_image_url, then fall back to cover_url
+    return track.cover_image_url || track.cover_url;
+  };
+
+  const handleImageError = (trackId: string) => {
+    setImageErrors(prev => new Set([...prev, trackId]));
   };
 
   const handlePlayPause = (track: Track) => {
@@ -267,110 +277,125 @@ export function Music() {
 
                     {/* Artist's Tracks */}
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                      {artistTracks.map((track) => (
-                        <div
-                          key={track.id}
-                          className={`bg-black/60 backdrop-blur-sm border rounded-lg p-6 transition-all duration-300 hover:scale-105 ${
-                            currentTrack?.id === track.id
-                              ? 'border-yellow-400/50 bg-yellow-400/10'
-                              : 'border-green-500/30 hover:border-green-400/50'
-                          }`}
-                        >
-                          {/* Cover Image */}
-                          <div className="relative w-full aspect-square bg-gray-800 rounded-lg overflow-hidden mb-4">
-                            {track.cover_image_url || track.cover_url ? (
-                              <img
-                                src={track.cover_image_url || track.cover_url}
-                                alt={`${track.title} cover`}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-500">
-                                <MusicIcon size={48} />
-                              </div>
-                            )}
-                            
-                            {/* Play Button Overlay */}
-                            {getAudioUrl(track) && (
-                              <button
-                                onClick={() => handlePlayPause(track)}
-                                className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
-                              >
-                                <div className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-full p-4 transition-colors">
-                                  {currentTrack?.id === track.id && isPlaying ? (
-                                    <Pause size={24} />
-                                  ) : (
-                                    <Play size={24} />
-                                  )}
-                                </div>
-                              </button>
-                            )}
-                          </div>
-
-                          {/* Track Info */}
-                          <div className="text-center mb-4">
-                            <h3 className="text-xl font-bold text-yellow-300 mb-2">{track.title}</h3>
-                            <p className="text-green-200/80 text-sm">{track.artist}</p>
-                            {track.description && (
-                              <p className="text-green-200/60 text-xs mt-2 line-clamp-2">{track.description}</p>
-                            )}
-                          </div>
-
-                          {/* Price and Buy Button */}
-                          <div className="text-center">
-                            <p className="text-green-200 font-mono font-bold text-2xl mb-4">
-                              {formatPrice(track.price_cents)}
-                            </p>
-                            <button
-                              onClick={() => handleBuyTrack(track)}
-                              disabled={processingTrack === track.id || !track.stripe_price_id}
-                              className={`w-full flex items-center justify-center gap-2 font-bold py-3 px-4 rounded-lg text-sm transition-colors ${
-                                processingTrack === track.id
-                                  ? 'bg-gray-500 cursor-not-allowed text-white'
-                                  : !track.stripe_price_id 
-                                  ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                                  : 'bg-yellow-500 hover:bg-yellow-600 text-black'
-                              }`}
-                            >
-                              {processingTrack === track.id ? (
-                                <>
-                                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-                                  Processing...
-                                </>
-                              ) : !track.stripe_price_id ? (
-                                'Coming Soon'
+                      {artistTracks.map((track) => {
+                        const coverImageUrl = getCoverImageUrl(track);
+                        const hasImageError = imageErrors.has(track.id);
+                        
+                        return (
+                          <div
+                            key={track.id}
+                            className={`bg-black/60 backdrop-blur-sm border rounded-lg p-6 transition-all duration-300 hover:scale-105 ${
+                              currentTrack?.id === track.id
+                                ? 'border-yellow-400/50 bg-yellow-400/10'
+                                : 'border-green-500/30 hover:border-green-400/50'
+                            }`}
+                          >
+                            {/* Cover Image */}
+                            <div className="relative w-full aspect-square bg-gray-800 rounded-lg overflow-hidden mb-4 group">
+                              {coverImageUrl && !hasImageError ? (
+                                <img
+                                  src={coverImageUrl}
+                                  alt={`${track.title} album art`}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                  onError={() => handleImageError(track.id)}
+                                  loading="lazy"
+                                />
                               ) : (
-                                <>
-                                  <ShoppingCart size={16} />
-                                  Buy Now
-                                </>
+                                <div className="w-full h-full flex items-center justify-center text-gray-500 bg-gradient-to-br from-gray-800 to-gray-900">
+                                  <div className="text-center">
+                                    <MusicIcon size={48} className="mx-auto mb-2 opacity-50" />
+                                    <p className="text-xs text-gray-400">Album Art</p>
+                                  </div>
+                                </div>
                               )}
-                            </button>
-                          </div>
-
-                          {/* Audio Player for Current Track */}
-                          {currentTrack?.id === track.id && getAudioUrl(track) && (
-                            <div className="mt-4 pt-4 border-t border-green-500/20">
-                              <div className="text-center mb-2">
-                                <span className="text-sm text-yellow-300">
-                                  🎵 Preview
-                                </span>
+                              
+                              {/* Play Button Overlay */}
+                              {getAudioUrl(track) && (
+                                <button
+                                  onClick={() => handlePlayPause(track)}
+                                  className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
+                                >
+                                  <div className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-full p-4 transition-colors shadow-lg">
+                                    {currentTrack?.id === track.id && isPlaying ? (
+                                      <Pause size={24} />
+                                    ) : (
+                                      <Play size={24} />
+                                    )}
+                                  </div>
+                                </button>
+                              )}
+                              
+                              {/* Artist Badge */}
+                              <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-sm text-amber-500 text-xs font-bold px-2 py-1 rounded">
+                                {artist === 'DLD' ? 'DLD' : artist}
                               </div>
-                              <audio
-                                src={getAudioUrl(track)}
-                                controls
-                                className="w-full accent-yellow-400"
-                                onPlay={() => setIsPlaying(true)}
-                                onPause={() => setIsPlaying(false)}
-                                onEnded={() => {
-                                  setIsPlaying(false);
-                                  setCurrentTrack(null);
-                                }}
-                              />
                             </div>
-                          )}
-                        </div>
-                      ))}
+
+                            {/* Track Info */}
+                            <div className="text-center mb-4">
+                              <h3 className="text-xl font-bold text-yellow-300 mb-2">{track.title}</h3>
+                              <p className="text-green-200/80 text-sm">{track.artist}</p>
+                              {track.description && (
+                                <p className="text-green-200/60 text-xs mt-2 line-clamp-2">{track.description}</p>
+                              )}
+                            </div>
+
+                            {/* Price and Buy Button */}
+                            <div className="text-center">
+                              <p className="text-green-200 font-mono font-bold text-2xl mb-4">
+                                {formatPrice(track.price_cents)}
+                              </p>
+                              <button
+                                onClick={() => handleBuyTrack(track)}
+                                disabled={processingTrack === track.id || !track.stripe_price_id}
+                                className={`w-full flex items-center justify-center gap-2 font-bold py-3 px-4 rounded-lg text-sm transition-colors ${
+                                  processingTrack === track.id
+                                    ? 'bg-gray-500 cursor-not-allowed text-white'
+                                    : !track.stripe_price_id 
+                                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                                    : 'bg-yellow-500 hover:bg-yellow-600 text-black'
+                                }`}
+                              >
+                                {processingTrack === track.id ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
+                                    Processing...
+                                  </>
+                                ) : !track.stripe_price_id ? (
+                                  'Coming Soon'
+                                ) : (
+                                  <>
+                                    <ShoppingCart size={16} />
+                                    Buy Now
+                                  </>
+                                )}
+                              </button>
+                            </div>
+
+                            {/* Audio Player for Current Track */}
+                            {currentTrack?.id === track.id && getAudioUrl(track) && (
+                              <div className="mt-4 pt-4 border-t border-green-500/20">
+                                <div className="text-center mb-2">
+                                  <span className="text-sm text-yellow-300">
+                                    🎵 Preview
+                                  </span>
+                                </div>
+                                <audio
+                                  src={getAudioUrl(track)}
+                                  controls
+                                  className="w-full accent-yellow-400"
+                                  onPlay={() => setIsPlaying(true)}
+                                  onPause={() => setIsPlaying(false)}
+                                  onEnded={() => {
+                                    setIsPlaying(false);
+                                    setCurrentTrack(null);
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
