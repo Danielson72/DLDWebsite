@@ -49,6 +49,16 @@ html, body {
   max-width: 100vw;
 }
 
+/* Mobile nav utilities */
+.no-scroll {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.nav-open header {
+  pointer-events: none;
+}
+
 /* Responsive text scaling */
 .responsive-heading-xl {
   font-size: clamp(2rem, 5vw, 4rem);
