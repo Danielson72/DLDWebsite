@@ -29,19 +29,19 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative bg-black border-t border-green-500/30 py-12">
+    <footer className="relative bg-black border-t border-green-500/30 py-8 sm:py-12 overflow-x-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:16px_16px]"></div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           {/* Main Message */}
-          <p className="text-amber-500 text-lg font-medium mb-8">
+          <p className="text-amber-500 text-base sm:text-lg font-medium mb-6 sm:mb-8">
             Follow Daniel in the Lion's Den for music, ministry, and updates.
           </p>
           
           {/* Social Media Icons */}
-          <div className="flex justify-center items-center gap-8 mb-6">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6">
             {socialLinks.map((social) => (
               <a
                 key={social.name}
@@ -51,7 +51,7 @@ export function Footer() {
                 className="group flex flex-col items-center transition-all duration-300 hover:scale-110"
               >
                 {/* Icon */}
-                <div className={`text-white text-3xl mb-2 transition-all duration-300 ${social.color} group-hover:drop-shadow-[0_0_8px_currentColor]`}>
+                <div className={`text-white text-2xl sm:text-3xl mb-1 sm:mb-2 transition-all duration-300 ${social.color} group-hover:drop-shadow-[0_0_8px_currentColor]`}>
                   <i className={social.icon}></i>
                 </div>
                 
@@ -64,8 +64,8 @@ export function Footer() {
           </div>
           
           {/* Copyright */}
-          <div className="pt-6 border-t border-green-500/20">
-            <p className="text-gray-400 text-sm">
+          <div className="pt-4 sm:pt-6 border-t border-green-500/20">
+            <p className="text-gray-400 text-xs sm:text-sm">
               © {new Date().getFullYear()} Daniel in the Lion's Den. All rights reserved.
             </p>
           </div>

@@ -237,36 +237,36 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
 
   return (
     <div className={containerClass}>
-      <div className="p-8">
+      <div className="p-6 sm:p-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-amber-500/20 rounded-full">
-              <Shield size={32} className="text-amber-500" />
+              <Shield size={24} className="sm:size-8 text-amber-500" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-amber-500 mb-2">Create Your Account</h1>
-          <p className="text-gray-300">Join the Lion's Den community and access exclusive music content</p>
+          <h1 className="responsive-heading-lg font-bold text-amber-500 mb-2">Create Your Account</h1>
+          <p className="text-gray-300 text-sm sm:text-base">Join the Lion's Den community and access exclusive music content</p>
         </div>
 
         {/* Submit Message */}
         {submitMessage && (
-          <div className={`mb-6 p-4 rounded-lg border flex items-center gap-3 ${
+          <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg border flex items-center gap-3 ${
             submitMessage.type === 'success' 
               ? 'bg-green-900/20 border-green-500/30 text-green-300' 
               : 'bg-red-900/20 border-red-500/30 text-red-300'
           }`}>
-            {submitMessage.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-            <span>{submitMessage.text}</span>
+            {submitMessage.type === 'success' ? <CheckCircle size={16} className="sm:size-5" /> : <AlertCircle size={16} className="sm:size-5" />}
+            <span className="text-sm sm:text-base">{submitMessage.text}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Name Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-2">
-                <User size={16} className="inline mr-2" />
+                <User size={14} className="sm:size-4 inline mr-2" />
                 First Name *
               </label>
               <input
@@ -274,7 +274,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
                 value={formData.firstName}
                 onChange={(e) => handleInputChange('firstName', e.target.value)}
                 onBlur={() => handleBlur('firstName')}
-                className={`w-full p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors ${
+                className={`w-full p-2.5 sm:p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors text-sm sm:text-base ${
                   errors.firstName ? 'border-red-500/50 focus:border-red-500' : 'border-green-500/30 focus:border-amber-500'
                 }`}
                 placeholder="John"
@@ -282,7 +282,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               />
               {errors.firstName && (
                 <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                  <XCircle size={14} />
+                  <XCircle size={12} className="sm:size-4" />
                   {errors.firstName}
                 </p>
               )}
@@ -297,7 +297,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
                 value={formData.lastName}
                 onChange={(e) => handleInputChange('lastName', e.target.value)}
                 onBlur={() => handleBlur('lastName')}
-                className={`w-full p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors ${
+                className={`w-full p-2.5 sm:p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors text-sm sm:text-base ${
                   errors.lastName ? 'border-red-500/50 focus:border-red-500' : 'border-green-500/30 focus:border-amber-500'
                 }`}
                 placeholder="Doe"
@@ -305,7 +305,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               />
               {errors.lastName && (
                 <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                  <XCircle size={14} />
+                  <XCircle size={12} className="sm:size-4" />
                   {errors.lastName}
                 </p>
               )}
@@ -322,7 +322,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               value={formData.username}
               onChange={(e) => handleInputChange('username', e.target.value.toLowerCase())}
               onBlur={() => handleBlur('username')}
-              className={`w-full p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors ${
+              className={`w-full p-2.5 sm:p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors text-sm sm:text-base ${
                 errors.username ? 'border-red-500/50 focus:border-red-500' : 'border-green-500/30 focus:border-amber-500'
               }`}
               placeholder="johndoe_123"
@@ -333,7 +333,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
             </p>
             {errors.username && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                <XCircle size={14} />
+                <XCircle size={12} className="sm:size-4" />
                 {errors.username}
               </p>
             )}
@@ -342,7 +342,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              <Mail size={16} className="inline mr-2" />
+              <Mail size={14} className="sm:size-4 inline mr-2" />
               Email Address *
             </label>
             <input
@@ -350,14 +350,14 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value.toLowerCase())}
               onBlur={() => handleBlur('email')}
-              className={`w-full p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors ${
+              className={`w-full p-2.5 sm:p-3 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors text-sm sm:text-base ${
                 errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-green-500/30 focus:border-amber-500'
               }`}
               placeholder="john@example.com"
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                <XCircle size={14} />
+                <XCircle size={12} className="sm:size-4" />
                 {errors.email}
               </p>
             )}
@@ -366,7 +366,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
           {/* Date of Birth */}
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              <Calendar size={16} className="inline mr-2" />
+              <Calendar size={14} className="sm:size-4 inline mr-2" />
               Date of Birth *
             </label>
             <input
@@ -375,7 +375,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
               onBlur={() => handleBlur('dateOfBirth')}
               max={new Date(Date.now() - 13 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-              className={`w-full p-3 bg-black/60 border rounded-lg text-white focus:outline-none transition-colors ${
+              className={`w-full p-2.5 sm:p-3 bg-black/60 border rounded-lg text-white focus:outline-none transition-colors text-sm sm:text-base ${
                 errors.dateOfBirth ? 'border-red-500/50 focus:border-red-500' : 'border-green-500/30 focus:border-amber-500'
               }`}
             />
@@ -384,7 +384,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
             </p>
             {errors.dateOfBirth && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                <XCircle size={14} />
+                <XCircle size={12} className="sm:size-4" />
                 {errors.dateOfBirth}
               </p>
             )}
@@ -393,7 +393,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
           {/* Password */}
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              <Lock size={16} className="inline mr-2" />
+              <Lock size={14} className="sm:size-4 inline mr-2" />
               Password *
             </label>
             <div className="relative">
@@ -402,7 +402,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 onBlur={() => handleBlur('password')}
-                className={`w-full p-3 pr-12 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors ${
+                className={`w-full p-2.5 sm:p-3 pr-10 sm:pr-12 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors text-sm sm:text-base ${
                   errors.password ? 'border-red-500/50 focus:border-red-500' : 'border-green-500/30 focus:border-amber-500'
                 }`}
                 placeholder="Create a strong password"
@@ -410,9 +410,9 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={16} className="sm:size-5" /> : <Eye size={16} className="sm:size-5" />}
               </button>
             </div>
 
@@ -427,7 +427,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
                       <div key={index} className={`text-xs flex items-center gap-2 ${
                         isMet ? 'text-green-400' : 'text-gray-400'
                       }`}>
-                        {isMet ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                        {isMet ? <CheckCircle size={12} className="sm:size-4" /> : <XCircle size={12} className="sm:size-4" />}
                         {req.label}
                       </div>
                     );
@@ -438,7 +438,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
 
             {errors.password && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                <XCircle size={14} />
+                <XCircle size={12} className="sm:size-4" />
                 {errors.password}
               </p>
             )}
@@ -455,7 +455,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                 onBlur={() => handleBlur('confirmPassword')}
-                className={`w-full p-3 pr-12 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors ${
+                className={`w-full p-2.5 sm:p-3 pr-10 sm:pr-12 bg-black/60 border rounded-lg text-white placeholder-gray-400 focus:outline-none transition-colors text-sm sm:text-base ${
                   errors.confirmPassword ? 'border-red-500/50 focus:border-red-500' : 'border-green-500/30 focus:border-amber-500'
                 }`}
                 placeholder="Confirm your password"
@@ -463,20 +463,20 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showConfirmPassword ? <EyeOff size={16} className="sm:size-5" /> : <Eye size={16} className="sm:size-5" />}
               </button>
             </div>
             {formData.confirmPassword && formData.password === formData.confirmPassword && (
               <p className="mt-1 text-sm text-green-400 flex items-center gap-1">
-                <CheckCircle size={14} />
+                <CheckCircle size={12} className="sm:size-4" />
                 Passwords match
               </p>
             )}
             {errors.confirmPassword && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                <XCircle size={14} />
+                <XCircle size={12} className="sm:size-4" />
                 {errors.confirmPassword}
               </p>
             )}
@@ -506,27 +506,28 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
             </label>
             {errors.termsAccepted && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                <XCircle size={14} />
+                <XCircle size={12} className="sm:size-4" />
                 {errors.termsAccepted}
               </p>
             )}
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-2 sm:pt-4">
             <button
               type="submit"
               disabled={isSubmitting || !isFormValid()}
-              className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-                  Creating Account...
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-black"></div>
+                  <span className="hidden sm:inline">Creating Account...</span>
+                  <span className="sm:hidden">...</span>
                 </>
               ) : (
                 <>
-                  <Shield size={20} />
+                  <Shield size={16} className="sm:size-5" />
                   Create Account
                 </>
               )}
@@ -539,7 +540,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               <button
                 type="button"
                 onClick={onCancel}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
               >
                 Cancel
               </button>
@@ -548,9 +549,9 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
         </form>
 
         {/* Security Notice */}
-        <div className="mt-6 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
-            <Shield size={16} className="text-green-400" />
+            <Shield size={14} className="sm:size-4 text-green-400" />
             <span className="text-sm font-medium text-green-400">Security & Privacy</span>
           </div>
           <ul className="text-xs text-green-300/80 space-y-1">

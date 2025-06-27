@@ -179,12 +179,12 @@ export function Music() {
   }, {} as Record<string, Track[]>);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black overflow-x-hidden">
       {/* Hero Section */}
       <section className="relative w-full h-screen overflow-hidden">
         {/* Hero background */}
         <div 
-          className="absolute inset-0 bg-center bg-contain bg-no-repeat"
+          className="absolute inset-0 bg-center bg-cover sm:bg-contain bg-no-repeat"
           style={{ backgroundImage: "url('/ChatGPT Image Jun 6, 2025, 10_19_50 PM (1).png')" }}
         />
 
@@ -192,22 +192,22 @@ export function Music() {
         <DotEdgeSides />
 
         {/* Artist Selection Buttons */}
-        <div className="absolute bottom-6 inset-x-0 flex justify-center gap-4 z-30 px-4">
+        <div className="absolute bottom-6 inset-x-0 flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 z-30 px-4">
           <button
             onClick={scrollToContent}
-            className="px-6 py-3 font-bold rounded-lg shadow-lg bg-yellow-500 hover:bg-yellow-600 text-black transition-all transform hover:scale-105"
+            className="w-full sm:w-auto px-4 sm:px-6 py-3 font-bold rounded-lg shadow-lg bg-yellow-500 hover:bg-yellow-600 text-black transition-all transform hover:scale-105 text-sm sm:text-base"
           >
             Daniel in the Lion's Den
           </button>
           <button
             onClick={scrollToContent}
-            className="px-6 py-3 font-bold rounded-lg shadow-lg bg-yellow-500 hover:bg-yellow-600 text-black transition-all transform hover:scale-105"
+            className="w-full sm:w-auto px-4 sm:px-6 py-3 font-bold rounded-lg shadow-lg bg-yellow-500 hover:bg-yellow-600 text-black transition-all transform hover:scale-105 text-sm sm:text-base"
           >
             The Tru Witnesses
           </button>
           <button
             onClick={scrollToContent}
-            className="px-6 py-3 font-bold rounded-lg shadow-lg bg-yellow-500 hover:bg-yellow-600 text-black transition-all transform hover:scale-105"
+            className="w-full sm:w-auto px-4 sm:px-6 py-3 font-bold rounded-lg shadow-lg bg-yellow-500 hover:bg-yellow-600 text-black transition-all transform hover:scale-105 text-sm sm:text-base"
           >
             Waves From IAM
           </button>
@@ -223,25 +223,25 @@ export function Music() {
       </section>
 
       {/* Music Content Section */}
-      <div id="music-content" className="relative bg-gradient-to-b from-green-900/20 to-black">
-        <div className="relative py-24 overflow-hidden">
+      <div id="music-content" className="relative bg-gradient-to-b from-green-900/20 to-black overflow-x-hidden">
+        <div className="relative py-12 sm:py-16 lg:py-24 overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:16px_16px]"></div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             {/* Header */}
-            <div className="text-center mb-16">
-              <div className="flex justify-center mb-6">
+            <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+              <div className="flex justify-center mb-4 sm:mb-6">
                 <MusicIcon size={48} className="text-amber-500" />
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-500 mb-6">
+              <h1 className="responsive-heading-xl font-bold text-amber-500 mb-4 sm:mb-6">
                 Daniel in the Lion's Den Music
               </h1>
-              <p className="text-xl text-emerald-400 max-w-2xl mx-auto mb-8">
+              <p className="responsive-text-lg text-emerald-400 max-w-2xl mx-auto mb-6 sm:mb-8">
                 Support the mission by purchasing original Kingdom music crafted by Daniel in the Lion's Den.
               </p>
               
               {/* Payment Security Notice */}
-              <div className="bg-black/40 border border-green-500/30 rounded-lg p-4 max-w-md mx-auto">
+              <div className="bg-black/40 border border-green-500/30 rounded-lg p-3 sm:p-4 max-w-sm sm:max-w-md mx-auto">
                 <p className="text-sm text-green-300">
                   🔒 Secure payments powered by Stripe
                 </p>
@@ -264,19 +264,19 @@ export function Music() {
               </div>
             ) : (
               /* Track Listings by Artist */
-              <div className="space-y-16">
+              <div className="space-y-12 sm:space-y-16">
                 {Object.entries(tracksByArtist).map(([artist, artistTracks]) => (
                   <div key={artist}>
                     {/* Artist Header */}
-                    <div className="text-center mb-12">
-                      <h2 className="text-3xl md:text-4xl font-bold text-amber-500 mb-4">
+                    <div className="text-center mb-8 sm:mb-12">
+                      <h2 className="responsive-heading-lg font-bold text-amber-500 mb-4">
                         {artist === 'DLD' ? 'Daniel in the Lion\'s Den' : artist} Tracks
                       </h2>
-                      <div className="h-1 w-24 bg-gradient-to-r from-amber-500 to-green-400 rounded mx-auto"></div>
+                      <div className="h-1 w-16 sm:w-24 bg-gradient-to-r from-amber-500 to-green-400 rounded mx-auto"></div>
                     </div>
 
                     {/* Artist's Tracks */}
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {artistTracks.map((track) => {
                         const coverImageUrl = getCoverImageUrl(track);
                         const hasImageError = imageErrors.has(track.id);
@@ -284,7 +284,7 @@ export function Music() {
                         return (
                           <div
                             key={track.id}
-                            className={`bg-black/60 backdrop-blur-sm border rounded-lg p-6 transition-all duration-300 hover:scale-105 ${
+                            className={`bg-black/60 backdrop-blur-sm border rounded-lg p-4 sm:p-6 transition-all duration-300 hover:scale-105 ${
                               currentTrack?.id === track.id
                                 ? 'border-yellow-400/50 bg-yellow-400/10'
                                 : 'border-green-500/30 hover:border-green-400/50'
@@ -315,40 +315,40 @@ export function Music() {
                                   onClick={() => handlePlayPause(track)}
                                   className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
                                 >
-                                  <div className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-full p-4 transition-colors shadow-lg">
+                                  <div className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-full p-3 sm:p-4 transition-colors shadow-lg">
                                     {currentTrack?.id === track.id && isPlaying ? (
-                                      <Pause size={24} />
+                                      <Pause size={20} className="sm:size-6" />
                                     ) : (
-                                      <Play size={24} />
+                                      <Play size={20} className="sm:size-6" />
                                     )}
                                   </div>
                                 </button>
                               )}
                               
                               {/* Artist Badge */}
-                              <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-sm text-amber-500 text-xs font-bold px-2 py-1 rounded">
+                              <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-black/80 backdrop-blur-sm text-amber-500 text-xs font-bold px-2 py-1 rounded">
                                 {artist === 'DLD' ? 'DLD' : artist}
                               </div>
                             </div>
 
                             {/* Track Info */}
                             <div className="text-center mb-4">
-                              <h3 className="text-xl font-bold text-yellow-300 mb-2">{track.title}</h3>
+                              <h3 className="text-lg sm:text-xl font-bold text-yellow-300 mb-2 line-clamp-2">{track.title}</h3>
                               <p className="text-green-200/80 text-sm">{track.artist}</p>
                               {track.description && (
-                                <p className="text-green-200/60 text-xs mt-2 line-clamp-2">{track.description}</p>
+                                <p className="text-green-200/60 text-xs mt-2 line-clamp-3">{track.description}</p>
                               )}
                             </div>
 
                             {/* Price and Buy Button */}
                             <div className="text-center">
-                              <p className="text-green-200 font-mono font-bold text-2xl mb-4">
+                              <p className="text-green-200 font-mono font-bold text-xl sm:text-2xl mb-4">
                                 {formatPrice(track.price_cents)}
                               </p>
                               <button
                                 onClick={() => handleBuyTrack(track)}
                                 disabled={processingTrack === track.id || !track.stripe_price_id}
-                                className={`w-full flex items-center justify-center gap-2 font-bold py-3 px-4 rounded-lg text-sm transition-colors ${
+                                className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 sm:py-3 px-4 rounded-lg text-sm transition-colors ${
                                   processingTrack === track.id
                                     ? 'bg-gray-500 cursor-not-allowed text-white'
                                     : !track.stripe_price_id 
@@ -358,14 +358,15 @@ export function Music() {
                               >
                                 {processingTrack === track.id ? (
                                   <>
-                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-                                    Processing...
+                                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-black"></div>
+                                    <span className="hidden sm:inline">Processing...</span>
+                                    <span className="sm:hidden">...</span>
                                   </>
                                 ) : !track.stripe_price_id ? (
                                   'Coming Soon'
                                 ) : (
                                   <>
-                                    <ShoppingCart size={16} />
+                                    <ShoppingCart size={14} className="sm:size-4" />
                                     Buy Now
                                   </>
                                 )}
@@ -376,7 +377,7 @@ export function Music() {
                             {currentTrack?.id === track.id && getAudioUrl(track) && (
                               <div className="mt-4 pt-4 border-t border-green-500/20">
                                 <div className="text-center mb-2">
-                                  <span className="text-sm text-yellow-300">
+                                  <span className="text-xs sm:text-sm text-yellow-300">
                                     🎵 Preview
                                   </span>
                                 </div>

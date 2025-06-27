@@ -58,42 +58,42 @@ export function LoginForm({ onSuccess, onCancel, isModal = false }: LoginFormPro
 
   return (
     <div className={containerClass}>
-      <div className="p-8">
+      <div className="p-6 sm:p-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-amber-500/20 rounded-full">
-              <LogIn size={32} className="text-amber-500" />
+              <LogIn size={24} className="sm:size-8 text-amber-500" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-amber-500 mb-2">Welcome Back</h1>
-          <p className="text-gray-300">Sign in to your Lion's Den account</p>
+          <h1 className="responsive-heading-lg font-bold text-amber-500 mb-2">Welcome Back</h1>
+          <p className="text-gray-300 text-sm sm:text-base">Sign in to your Lion's Den account</p>
         </div>
 
         {/* Message */}
         {message && (
-          <div className={`mb-6 p-4 rounded-lg border flex items-center gap-3 ${
+          <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg border flex items-center gap-3 ${
             message.type === 'success' 
               ? 'bg-green-900/20 border-green-500/30 text-green-300' 
               : 'bg-red-900/20 border-red-500/30 text-red-300'
           }`}>
-            {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-            <span>{message.text}</span>
+            {message.type === 'success' ? <CheckCircle size={16} className="sm:size-5" /> : <AlertCircle size={16} className="sm:size-5" />}
+            <span className="text-sm sm:text-base">{message.text}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              <Mail size={16} className="inline mr-2" />
+              <Mail size={14} className="sm:size-4 inline mr-2" />
               Email Address
             </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              className="w-full p-3 bg-black/60 border border-green-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500 transition-colors"
+              className="w-full p-2.5 sm:p-3 bg-black/60 border border-green-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500 transition-colors text-sm sm:text-base"
               placeholder="your@email.com"
               required
             />
@@ -102,7 +102,7 @@ export function LoginForm({ onSuccess, onCancel, isModal = false }: LoginFormPro
           {/* Password */}
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              <Lock size={16} className="inline mr-2" />
+              <Lock size={14} className="sm:size-4 inline mr-2" />
               Password
             </label>
             <div className="relative">
@@ -110,35 +110,36 @@ export function LoginForm({ onSuccess, onCancel, isModal = false }: LoginFormPro
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className="w-full p-3 pr-12 bg-black/60 border border-green-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full p-2.5 sm:p-3 pr-10 sm:pr-12 bg-black/60 border border-green-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500 transition-colors text-sm sm:text-base"
                 placeholder="Your password"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={16} className="sm:size-5" /> : <Eye size={16} className="sm:size-5" />}
               </button>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-2 sm:pt-4">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-bold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
-                  Signing In...
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-black"></div>
+                  <span className="hidden sm:inline">Signing In...</span>
+                  <span className="sm:hidden">...</span>
                 </>
               ) : (
                 <>
-                  <LogIn size={20} />
+                  <LogIn size={16} className="sm:size-5" />
                   Sign In
                 </>
               )}
@@ -151,7 +152,7 @@ export function LoginForm({ onSuccess, onCancel, isModal = false }: LoginFormPro
               <button
                 type="button"
                 onClick={onCancel}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
               >
                 Cancel
               </button>
@@ -160,10 +161,10 @@ export function LoginForm({ onSuccess, onCancel, isModal = false }: LoginFormPro
         </form>
 
         {/* Forgot Password */}
-        <div className="mt-6 text-center">
+        <div className="mt-4 sm:mt-6 text-center">
           <button
             type="button"
-            className="text-green-300 hover:text-green-200 text-sm"
+            className="text-green-300 hover:text-green-200 text-xs sm:text-sm"
           >
             Forgot your password?
           </button>
