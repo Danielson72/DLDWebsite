@@ -268,7 +268,7 @@ export function Music() {
               </div>
             ) : (
               /* Track Listings by Artist */
-              {useNewCheckout ? (
+              useNewCheckout ? (
                 <MusicPlayerV2 tracks={tracks} user={user} />
               ) : (
                 <div className="space-y-12 sm:space-y-16">
@@ -408,7 +408,7 @@ export function Music() {
                     </div>
                   ))}
                 </div>
-              )}
+              )
             )}
           </div>
         </div>
