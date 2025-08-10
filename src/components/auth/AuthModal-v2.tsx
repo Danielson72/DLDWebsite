@@ -91,6 +91,7 @@ export function AuthModalV2({ isOpen, onClose, onSuccess }: AuthModalV2Props) {
           email: form.email,
           password: form.password,
           options: {
+            emailRedirectTo: `${import.meta.env.VITE_SITE_URL}/auth/callback`,
             data: {
               name: form.name.trim(),
               phone: form.phone.trim(),

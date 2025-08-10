@@ -13,6 +13,7 @@ import { Services } from './pages/Services';
 import { Success } from './pages/Success';
 import { YouTube } from './pages/YouTube';
 import { Dashboard } from './pages/Dashboard';
+import { AuthCallback } from './pages/AuthCallback';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="success" element={<Success />} />
           <Route path="*" element={<Home />} />
         </Route>

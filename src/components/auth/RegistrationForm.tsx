@@ -189,11 +189,12 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+            emailRedirectTo: `${import.meta.env.VITE_SITE_URL}/auth/callback`,
         options: {
+              display_name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
           data: {
             first_name: formData.firstName.trim(),
             last_name: formData.lastName.trim(),
-            username: formData.username.trim(),
             display_name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
             date_of_birth: formData.dateOfBirth,
           },

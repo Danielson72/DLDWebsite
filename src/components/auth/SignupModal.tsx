@@ -27,6 +27,9 @@ export function SignupModal({ isOpen, onClose, onSuccess }: SignupModalProps) {
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
+          options: {
+            emailRedirectTo: `${import.meta.env.VITE_SITE_URL}/auth/callback`,
+          },
         });
 
         if (error) throw error;
