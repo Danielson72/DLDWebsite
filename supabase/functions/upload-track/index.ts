@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const HARDCODED_STRIPE_PRICE_ID = 'price_1RZeCfGKbDbFMYBRBxzujgeH'; // $0.99 price
+const HARDCODED_STRIPE_PRICE_ID = 'price_1MlFZQGKbDbFMYBRKOBe8Kf4'; // $0.99 price
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {

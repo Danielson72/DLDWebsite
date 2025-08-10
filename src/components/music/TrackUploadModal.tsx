@@ -21,7 +21,7 @@ interface UploadForm {
 }
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-const HARDCODED_STRIPE_PRICE_ID = 'price_1RZeCfGKbDbFMYBRBxzujgeH'; // $0.99 price
+const HARDCODED_STRIPE_PRICE_ID = 'price_1MlFZQGKbDbFMYBRKOBe8Kf4'; // $0.99 price
 
 export function TrackUploadModal({ user, isOpen, onClose, onSuccess }: TrackUploadModalProps) {
   const [form, setForm] = useState<UploadForm>({
