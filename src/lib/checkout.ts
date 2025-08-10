@@ -29,12 +29,13 @@ export async function buyTrack(track: { id: string; title: string; stripe_price_
 
   if (error) {
     console.error('createCheckout error', error);
-    alert(`Error processing payment: ${error.message ?? 'Edge Function returned an error'}`);
+    const errorDetails = error.details ? ` (${error.details})` : '';
+    alert(`Error processing payment: ${error.message ?? 'Edge Function returned an error'}${errorDetails}`);
     return;
   }
   if (!data?.url) {
     console.error('createCheckout returned no URL', data);
-    alert('Payment error: missing checkout URL from server.');
+    alert(`Payment error: missing checkout URL from server. Response: ${JSON.stringify(data)}`);
     return;
   }
   window.location.href = data.url;

@@ -85,11 +85,13 @@ export function Music() {
       
       if (error) {
         console.error('Error fetching tracks:', error);
+        alert(`Failed to load tracks: ${error.message} (Status: ${error.status || 'unknown'})`);
       } else {
         setTracks(data || []);
       }
     } catch (err) {
       console.error('Error:', err);
+      alert(`Unexpected error loading tracks: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
