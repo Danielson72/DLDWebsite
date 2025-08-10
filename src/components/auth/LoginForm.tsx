@@ -30,8 +30,8 @@ export function LoginForm({ onSuccess, onCancel, isModal = false }: LoginFormPro
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
+        email: formData.email.trim(),
+        password: formData.password.trim(),
       });
 
       if (error) {

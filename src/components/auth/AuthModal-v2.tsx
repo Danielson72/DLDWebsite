@@ -119,8 +119,8 @@ export function AuthModalV2({ isOpen, onClose, onSuccess }: AuthModalV2Props) {
       } else {
         // Sign in
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: form.email,
-          password: form.password,
+          email: form.email.trim(),
+          password: form.password.trim(),
         });
 
         if (error) {
