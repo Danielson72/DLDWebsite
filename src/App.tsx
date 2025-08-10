@@ -12,6 +12,7 @@ import { Register } from './pages/Register';
 import { Services } from './pages/Services';
 import { Success } from './pages/Success';
 import { YouTube } from './pages/YouTube';
+import { Dashboard } from './pages/Dashboard';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="music" element={<Music />} />
           <Route path="music/upload" element={<MusicUpload />} />
           <Route path="my-music" element={<MyMusic />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="youtube" element={<YouTube />} />
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />

@@ -4,9 +4,12 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { Footer } from './Footer';
+import { AuthModalV2 } from './auth/AuthModal-v2';
 
 export function Layout() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
@@ -44,6 +47,18 @@ export function Layout() {
     document.body.classList.remove('nav-open', 'no-scroll');
   };
 
+  // Close avatar menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showAvatarMenu && !target.closest('.avatar-menu-container')) {
+        setShowAvatarMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showAvatarMenu]);
   // Clean up body classes on unmount
   useEffect(() => {
     return () => {
@@ -53,12 +68,14 @@ export function Layout() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    setShowAvatarMenu(false);
   };
 
   const navigationItems = [
     { path: '/about', label: 'About', description: 'Learn about Daniel Alvarez and his mission' },
     { path: '/music', label: 'Music', description: 'Kingdom music and digital downloads' },
     { path: '/my-music', label: 'My Music', description: 'Your purchased music collection', authRequired: true },
+    { path: '/dashboard', label: 'Dashboard', description: 'Your personal dashboard', authRequired: true },
     { path: '/ministry', label: 'Ministry', description: 'Spiritual guidance and community outreach' },
     { path: '/services', label: 'Services', description: 'Worship services and events schedule' },
     { path: '/youtube', label: 'YouTube', description: 'Video content and teachings' },
@@ -106,37 +123,51 @@ export function Layout() {
                 {loading ? (
                   <div className="w-6 h-6 sm:w-8 sm:h-8 animate-spin rounded-full border-b-2 border-amber-500"></div>
                 ) : user ? (
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 text-green-300">
-                      <UserIcon size={14} className="sm:size-4" />
-                      <span className="text-xs sm:text-sm font-medium">
+                  <div className="relative avatar-menu-container">
+                    <button
+                      onClick={() => setShowAvatarMenu(!showAvatarMenu)}
+                      className="flex items-center gap-2 text-green-300 hover:text-green-200 transition-colors"
+                    >
+                      <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+                        <UserIcon size={16} className="text-black" />
+                      </div>
+                      <span className="text-sm font-medium hidden xl:inline">
                         {user.email?.split('@')[0]}
                       </span>
-                    </div>
-                    <button
-                      onClick={handleSignOut}
-                      className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors text-xs sm:text-sm"
-                      title="Sign out"
-                    >
-                      <LogOut size={12} className="sm:size-3" />
-                      Sign Out
                     </button>
+
+                    {/* Avatar Dropdown Menu */}
+                    {showAvatarMenu && (
+                      <div className="absolute top-full right-0 mt-2 w-48 bg-black/95 backdrop-blur-sm border border-green-500/30 rounded-lg shadow-lg py-2 z-50">
+                        <div className="px-4 py-2 border-b border-green-500/20">
+                          <p className="text-sm text-gray-300">Signed in as</p>
+                          <p className="text-sm font-medium text-amber-500 truncate">{user.email}</p>
+                        </div>
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setShowAvatarMenu(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-white hover:bg-amber-500/10 hover:text-amber-500 transition-colors"
+                        >
+                          <UserIcon size={16} />
+                          Dashboard
+                        </Link>
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center gap-2 w-full px-4 py-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                        >
+                          <LogOut size={16} />
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Link
-                      to="/login"
-                      className="text-white hover:text-amber-500 transition-colors font-medium text-xs sm:text-sm"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm"
-                    >
-                      Register
-                    </Link>
-                  </div>
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-2 rounded-lg transition-colors text-sm"
+                  >
+                    Sign In
+                  </button>
                 )}
               </div>
             </div>
@@ -216,28 +247,31 @@ export function Layout() {
                   </button>
                 </>
               ) : (
-                <>
-                  <Link
-                    to="/login"
-                    onClick={closeMobileMenu}
-                    className="block w-full text-center bg-transparent border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black font-bold py-4 px-6 rounded-lg transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={closeMobileMenu}
-                    className="block w-full text-center bg-amber-500 hover:bg-amber-600 text-black font-bold py-4 px-6 rounded-lg transition-colors"
-                  >
-                    Register Account
-                  </Link>
-                </>
+                <button
+                  onClick={() => {
+                    setShowAuthModal(true);
+                    closeMobileMenu();
+                  }}
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-4 px-6 rounded-lg transition-colors"
+                >
+                  Sign In
+                </button>
               )}
             </div>
           </div>
         </div>
       </nav>
 
+      {/* Auth Modal */}
+      <AuthModalV2
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          // Refresh to update auth state
+          window.location.reload();
+        }}
+      />
       {/* Page Content */}
       <main className="flex-1 pt-16 overflow-x-hidden">
         <Outlet />
