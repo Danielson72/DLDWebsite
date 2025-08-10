@@ -1,123 +1,43 @@
-import { createClient } from 'npm:@supabase/supabase-js@2'
+// deno-lint-ignore-file no-explicit-any
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-}
+const BUCKET = 'music' // keep your actual bucket name
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
-
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-    // Get user from auth header
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Authorization header required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-      )
-    }
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
+    const { track_id } = await req.json()
+    const authHeader = req.headers.get('Authorization') ?? ''
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
     )
 
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid authentication' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-      )
-    }
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return new Response(JSON.stringify({ error: 'Unauthenticated' }), { status: 401 })
 
-    const url = new URL(req.url)
-    const trackId = url.searchParams.get('track_id')
+    // Verify purchase
+    const { data: ok } = await supabase.from('purchases')
+      .select('id').eq('user_id', user.id).eq('track_id', track_id).eq('status', 'paid').maybeSingle()
+    if (!ok) return new Response(JSON.stringify({ error: 'Not purchased' }), { status: 403 })
 
-    if (!trackId) {
-      return new Response(
-        JSON.stringify({ error: 'track_id parameter required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
-    }
+    // Find file path from music_tracks
+    const { data: trk, error } = await supabase.from('music_tracks')
+      .select('audio_full').eq('id', track_id).maybeSingle()
+    if (error || !trk?.audio_full) return new Response(JSON.stringify({ error: 'File not found' }), { status: 404 })
 
-    // Verify user has purchased this track
-    const { data: purchase, error: purchaseError } = await supabase
-      .from('purchases')
-      .select(`
-        *,
-        music_tracks!inner (
-          id,
-          title,
-          artist,
-          audio_full
-        )
-      `)
-      .eq('user_id', user.id)
-      .eq('track_id', trackId)
-      .eq('status', 'paid')
-      .single()
-
-    if (purchaseError || !purchase) {
-      return new Response(
-        JSON.stringify({ error: 'Purchase not found or not completed' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-      )
-    }
-
-    const track = purchase.music_tracks
-    if (!track.audio_full) {
-      return new Response(
-        JSON.stringify({ error: 'Track file not available' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
-      )
-    }
-
-    // Extract file path from the full URL
-    const audioUrl = track.audio_full
+    // Extract file path from full URL
+    const audioUrl = trk.audio_full
     const pathParts = audioUrl.split('/music/')
     if (pathParts.length !== 2) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid file path' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
+      return new Response(JSON.stringify({ error: 'Invalid file path' }), { status: 400 })
     }
-
     const filePath = decodeURIComponent(pathParts[1])
 
-    // Create signed URL for download (valid for 1 hour)
-    const { data: signedUrlData, error: urlError } = await supabase.storage
-      .from('music')
-      .createSignedUrl(filePath, 3600, {
-        download: true,
-      })
-
-    if (urlError || !signedUrlData) {
-      console.error('Error creating signed URL:', urlError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to create download link' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        download_url: signedUrlData.signedUrl,
-        filename: `${track.artist} - ${track.title}.mp3`
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-
-  } catch (error: any) {
-    console.error('Error in getSignedUrl:', error)
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-    )
+    const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(filePath, 60 * 5)
+    return new Response(JSON.stringify({ url: signed?.signedUrl }), { headers: { 'Content-Type':'application/json' }})
+  } catch (e) {
+    return new Response(JSON.stringify({ error: String(e) }), { status: 400 })
   }
 })

@@ -111,43 +111,15 @@ export function MyMusic() {
   };
 
   const handleDownload = async (trackId: string, trackTitle: string) => {
-    if (!user) {
-      setMessage({ type: 'error', text: 'Please sign in to download your music.' });
-      return;
-    }
-
     setDownloadingTrack(trackId);
     setMessage(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Authentication required');
+      const { data, error } = await supabase.functions.invoke('getSignedUrl', { body: { track_id: trackId } })
+      if (error) { 
+        throw new Error(error.message)
       }
-
-      // Call the Edge Function to get a signed download URL
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-signed-url?track_id=${trackId}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to get download link');
-      }
-
-      const { download_url, filename } = await response.json();
-
-      // Trigger download
-      const link = document.createElement('a');
-      link.href = download_url;
-      link.download = filename || `${trackTitle}.mp3`;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      window.location.href = (data as any).url
 
       setMessage({ type: 'success', text: `Download started for "${trackTitle}"` });
     } catch (error: any) {

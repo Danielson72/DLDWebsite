@@ -134,34 +134,12 @@ function DashboardContent() {
 
   const handleDownload = async (trackId: string, trackTitle: string) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        alert('Please sign in to download your music.');
-        return;
+      const { data, error } = await supabase.functions.invoke('getSignedUrl', { body: { track_id: trackId } })
+      if (error) { 
+        alert(error.message)
+        return
       }
-
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-signed-url?track_id=${trackId}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to get download link');
-      }
-
-      const { download_url, filename } = await response.json();
-
-      // Trigger download
-      const link = document.createElement('a');
-      link.href = download_url;
-      link.download = filename || `${trackTitle}.mp3`;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      window.location.href = (data as any).url
 
     } catch (error: any) {
       console.error('Download error:', error);

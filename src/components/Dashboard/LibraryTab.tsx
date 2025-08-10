@@ -1,6 +1,7 @@
 import { Music, Download, Calendar, Play, Pause } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
 
 interface Purchase {
   id: string;
@@ -30,7 +31,12 @@ export function LibraryTab({ purchases, formatCurrency, formatDate, onDownload }
   const handleDownload = async (trackId: string, trackTitle: string) => {
     setDownloadingTrack(trackId);
     try {
-      await onDownload(trackId, trackTitle);
+      const { data, error } = await supabase.functions.invoke('getSignedUrl', { body: { track_id: trackId } })
+      if (error) { 
+        alert(error.message)
+        return
+      }
+      window.location.href = (data as any).url
     } finally {
       setDownloadingTrack(null);
     }
