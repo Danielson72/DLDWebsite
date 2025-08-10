@@ -4,6 +4,7 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { Track } from '../../types/music';
 import { supabase } from '../../lib/supabase';
 import { SignupModal } from '../auth/SignupModal';
+import { buyTrack } from '../../lib/checkout';
 
 interface TrackListProps {
   tracks: Track[];
@@ -77,58 +78,14 @@ export function TrackList({ tracks, user, onTrackDeleted }: TrackListProps) {
   };
 
   const handleBuyTrack = async (track: Track) => {
-    // Check if user is authenticated
-    if (!user) {
-      setShowSignupModal(true);
-      return;
-    }
-
-    // Check if track has a Stripe Price ID
-    if (!track.stripe_price_id) {
-      alert('This track is not available for purchase yet. Please check back soon!');
-      return;
-    }
-
-    setProcessingTrack(track.id);
-    
     try {
-      console.log('Initiating checkout for track:', track.title, 'with Price ID:', track.stripe_price_id);
-      
-      // Get current session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setShowSignupModal(true);
-        return;
-      }
-      
-      // Call the new create-checkout Edge Function
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { 
-          price_id: track.stripe_price_id,
-          supabase_uid: session.user.id,
-          track_id: track.id
-        }
-      });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        alert(`Error processing payment: ${error.message || 'Please try again.'}`);
-        return;
-      }
-
-      if (data?.url) {
-        console.log('Redirecting to Stripe Checkout:', data.url);
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        console.error('No checkout URL returned:', data);
-        alert('Error creating checkout session. Please try again.');
-      }
+      await buyTrack(track);
     } catch (error: any) {
-      console.error('Unexpected error during checkout:', error);
-      alert('An unexpected error occurred. Please try again.');
-    } finally {
-      setProcessingTrack(null);
+      if (error.message === 'NO_SESSION') {
+        setShowSignupModal(true);
+      } else {
+        alert(`Checkout failed: ${error.message}`);
+      }
     }
   };
 

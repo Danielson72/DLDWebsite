@@ -152,7 +152,15 @@ export function Music() {
   };
 
   const handleBuyTrack = async (track: Track) => {
-    await buyTrack(track);
+    try {
+      await buyTrack(track);
+    } catch (error: any) {
+      if (error.message !== 'NO_SESSION') {
+        // Display error toast for non-auth errors
+        setErrorMessage(error.message || 'Checkout failed');
+        setTimeout(() => setErrorMessage(null), 5000);
+      }
+    }
   };
 
   const scrollToContent = () => {
