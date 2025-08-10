@@ -1,4 +1,5 @@
 import { ChevronDown, Music as MusicIcon, Play, Pause, ShoppingCart, User } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Track, Artist } from '../types/music';
@@ -16,9 +17,22 @@ export function Music() {
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [processingTrack, setProcessingTrack] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Check if new checkout feature is enabled
   const useNewCheckout = import.meta.env.VITE_FEATURE_NEW_CHECKOUT === 'true';
+
+  // Listen for checkout errors
+  useEffect(() => {
+    const handleCheckoutError = (event: any) => {
+      setErrorMessage(event.detail.message);
+      // Clear error after 5 seconds
+      setTimeout(() => setErrorMessage(null), 5000);
+    };
+
+    window.addEventListener('checkout-error', handleCheckoutError);
+    return () => window.removeEventListener('checkout-error', handleCheckoutError);
+  }, []);
 
   // Fetch all tracks on component mount
   useEffect(() => {
@@ -187,6 +201,25 @@ export function Music() {
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:16px_16px]"></div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
+            {/* Error Toast */}
+            {errorMessage && (
+              <div className="fixed top-20 right-4 bg-red-900/90 backdrop-blur-sm border border-red-500/30 text-red-300 p-4 rounded-lg shadow-lg z-50 max-w-sm">
+                <div className="flex items-center gap-3">
+                  <AlertCircle size={20} />
+                  <div>
+                    <p className="font-medium">Checkout Error</p>
+                    <p className="text-sm">{errorMessage}</p>
+                  </div>
+                  <button
+                    onClick={() => setErrorMessage(null)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Header */}
             <div className="text-center mb-8 sm:mb-12 lg:mb-16">
               <div className="flex justify-center mb-4 sm:mb-6">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Play, Pause, ShoppingCart, Music as MusicIcon } from 'lucide-react';
+import { Play, Pause, ShoppingCart, Music as MusicIcon, AlertCircle, X } from 'lucide-react';
 import { Track } from '../../types/music';
 import { buyTrack } from '../../lib/checkout';
 import { supabase } from '../../lib/supabase';
@@ -16,17 +16,27 @@ export function MusicPlayerV2({ tracks, user }: MusicPlayerV2Props) {
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [processingTrack, setProcessingTrack] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Listen for auth modal events
   useEffect(() => {
+    const handleCheckoutError = (event: any) => {
+      setErrorMessage(event.detail.message);
+      setTimeout(() => setErrorMessage(null), 5000);
+    };
+
     const handleOpenAuthModal = () => {
       // Dispatch event to open auth modal in Layout component
       const evt = new CustomEvent('show-auth-modal');
       window.dispatchEvent(evt);
     };
 
+    window.addEventListener('checkout-error', handleCheckoutError);
     window.addEventListener('open-auth-modal', handleOpenAuthModal);
-    return () => window.removeEventListener('open-auth-modal', handleOpenAuthModal);
+    return () => {
+      window.removeEventListener('checkout-error', handleCheckoutError);
+      window.removeEventListener('open-auth-modal', handleOpenAuthModal);
+    };
   }, []);
 
   const formatPrice = (cents: number) => {
@@ -104,7 +114,26 @@ export function MusicPlayerV2({ tracks, user }: MusicPlayerV2Props) {
   }
 
   return (
-    <div className="space-y-12 sm:space-y-16">
+    <div className="relative space-y-12 sm:space-y-16">
+      {/* Error Toast */}
+      {errorMessage && (
+        <div className="fixed top-20 right-4 bg-red-900/90 backdrop-blur-sm border border-red-500/30 text-red-300 p-4 rounded-lg shadow-lg z-50 max-w-sm">
+          <div className="flex items-center gap-3">
+            <AlertCircle size={20} />
+            <div>
+              <p className="font-medium">Checkout Error</p>
+              <p className="text-sm">{errorMessage}</p>
+            </div>
+            <button
+              onClick={() => setErrorMessage(null)}
+              className="text-red-400 hover:text-red-300"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {Object.entries(tracksByArtist).map(([artist, artistTracks]) => (
         <div key={artist}>
           {/* Artist Header */}
