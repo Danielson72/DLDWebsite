@@ -18,6 +18,7 @@ export function Music() {
   const [processingTrack, setProcessingTrack] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   // Check if new checkout feature is enabled
   const useNewCheckout = import.meta.env.VITE_FEATURE_NEW_CHECKOUT === 'true';
@@ -33,6 +34,23 @@ export function Music() {
     window.addEventListener('checkout-error', handleCheckoutError);
     return () => window.removeEventListener('checkout-error', handleCheckoutError);
   }, []);
+
+  // User auth state for new checkout flow
+  useEffect(() => {
+    if (useNewCheckout) {
+      // Get initial session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+      });
+
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, [useNewCheckout]);
 
   // Fetch all tracks on component mount
   useEffect(() => {
@@ -414,23 +432,4 @@ export function Music() {
       />
     </div>
   );
-
-  // Add user state for new checkout flow
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    if (useNewCheckout) {
-      // Get initial session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-      });
-
-      // Listen for auth changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null);
-      });
-
-      return () => subscription.unsubscribe();
-    }
-  }, [useNewCheckout]);
 }
