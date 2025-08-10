@@ -59,6 +59,15 @@ export function Layout() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showAvatarMenu]);
+  useEffect(() => {
+    const handleShowAuthModal = () => {
+      setShowAuthModal(true);
+    };
+
+    window.addEventListener('show-auth-modal', handleShowAuthModal);
+    return () => window.removeEventListener('show-auth-modal', handleShowAuthModal);
+  }, []);
+
   // Clean up body classes on unmount
   useEffect(() => {
     return () => {
