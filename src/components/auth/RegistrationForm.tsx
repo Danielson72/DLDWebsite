@@ -138,9 +138,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
     }
 
     // Date of Birth
-    if (touched.dateOfBirth && !formData.dateOfBirth) {
-      newErrors.dateOfBirth = 'Date of birth is required';
-    } else if (touched.dateOfBirth && !validateAge(formData.dateOfBirth)) {
+    if (touched.dateOfBirth && formData.dateOfBirth && !validateAge(formData.dateOfBirth)) {
       newErrors.dateOfBirth = 'You must be at least 13 years old';
     }
 
@@ -167,7 +165,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
     const noErrors = Object.keys(errors).length === 0;
     const allRequiredFields = formData.firstName && formData.lastName && formData.username && 
                              formData.email && formData.password && formData.confirmPassword && 
-                             formData.dateOfBirth && formData.termsAccepted;
+                             formData.termsAccepted;
     
     return allFieldsTouched && noErrors && allRequiredFields;
   };
@@ -367,7 +365,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
               <Calendar size={14} className="sm:size-4 inline mr-2" />
-              Date of Birth *
+              Date of Birth (Optional)
             </label>
             <input
               type="date"
@@ -380,7 +378,7 @@ export function RegistrationForm({ onSuccess, onCancel, isModal = false }: Regis
               }`}
             />
             <p className="mt-1 text-xs text-gray-400">
-              You must be at least 13 years old to create an account
+              If provided, you must be at least 13 years old
             </p>
             {errors.dateOfBirth && (
               <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
