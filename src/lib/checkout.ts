@@ -12,7 +12,7 @@ export async function requireSession() {
 }
 
 // Default Stripe price if a track is missing one (your 99¢ price):
-const DEFAULT_PRICE_ID = 'price_1RZeCfGKbDbFMYBRBxzujgeH';
+const DEFAULT_PRICE_ID = 'price_1MlFZQGKbDbFMYBRKOBe8Kf4';
 
 export async function buyTrack(track: { id: string; title: string; stripe_price_id?: string }) {
   const session = await requireSession();
