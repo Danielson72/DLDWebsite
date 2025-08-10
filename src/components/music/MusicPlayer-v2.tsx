@@ -82,25 +82,7 @@ export function MusicPlayerV2({ tracks, user }: MusicPlayerV2Props) {
   };
 
   const handleBuyTrack = async (track: Track) => {
-    if (!track.stripe_price_id) {
-      alert('This track is not available for purchase yet. Please check back soon!');
-      return;
-    }
-
-    setProcessingTrack(track.id);
-    
-    try {
-      await buyTrack({
-        id: track.id,
-        title: track.title,
-        stripe_price_id: track.stripe_price_id
-      });
-    } catch (error: any) {
-      console.error('Unexpected error during checkout:', error);
-      alert('An unexpected error occurred. Please try again.');
-    } finally {
-      setProcessingTrack(null);
-    }
+    await buyTrack(track);
   };
 
   // Group tracks by artist

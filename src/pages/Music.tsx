@@ -5,6 +5,7 @@ import { Track, Artist } from '../types/music';
 import { DotEdgeSides } from '../components/music/DotEdgeSides';
 import { SignupModal } from '../components/auth/SignupModal';
 import { MusicPlayerV2 } from '../components/music/MusicPlayer-v2';
+import { buyTrack } from '../lib/checkout';
 
 export function Music() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -119,53 +120,7 @@ export function Music() {
   };
 
   const handleBuyTrack = async (track: Track) => {
-    // Check if track has a Stripe Price ID
-    if (!track.stripe_price_id) {
-      alert('This track is not available for purchase yet. Please check back soon!');
-      return;
-    }
-
-    // Check if user is authenticated
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      setShowSignupModal(true);
-      return;
-    }
-
-    setProcessingTrack(track.id);
-    
-    try {
-      console.log('Initiating checkout for track:', track.title, 'with Price ID:', track.stripe_price_id);
-      
-      // Call the create-checkout Edge Function
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { 
-          price_id: track.stripe_price_id,
-          supabase_uid: session.user.id,
-          track_id: track.id
-        }
-      });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        alert(`Error processing payment: ${error.message || 'Please try again.'}`);
-        return;
-      }
-
-      if (data?.url) {
-        console.log('Redirecting to Stripe Checkout:', data.url);
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        console.error('No checkout URL returned:', data);
-        alert('Error creating checkout session. Please try again.');
-      }
-    } catch (error: any) {
-      console.error('Unexpected error during checkout:', error);
-      alert('An unexpected error occurred. Please try again.');
-    } finally {
-      setProcessingTrack(null);
-    }
+    await buyTrack(track);
   };
 
   const scrollToContent = () => {
