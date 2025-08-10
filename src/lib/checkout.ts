@@ -18,7 +18,7 @@ export async function buyTrack(track: { id: string; title: string; stripe_price_
   const session = await requireSession();
   const price_id = track.stripe_price_id ?? DEFAULT_PRICE_ID;
 
-  const { data, error } = await supabase.functions.invoke('createCheckout', {
+  const { data, error } = await supabase.functions.invoke('create-checkout', {
     body: {
       price_id,
       track_id: track.id,
