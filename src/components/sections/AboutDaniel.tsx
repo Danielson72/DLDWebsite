@@ -3,15 +3,15 @@ export function AboutDaniel() {
     <section className="py-20 px-6" style={{ backgroundColor: '#091f21' }}>
       <div className="flex flex-col items-center text-center">
         {/* Avatar */}
-        <div className="w-28 h-28 rounded-full border-2 border-[#EEC14E] mb-6 flex items-center justify-center"
-          style={{ background: 'transparent' }}>
-          <img
-            src="/icons/logo-96.png"
-            alt="DLD Lion Logo"
-            className="w-24 h-24 object-contain"
-            style={{ background: 'transparent' }}
-          />
-        </div>
+        <img
+          src="/images/dld-logo.png"
+          alt="DLD Lion Logo"
+          className="w-32 h-32 object-contain mb-6"
+          style={{
+            mixBlendMode: 'lighten',
+            filter: 'drop-shadow(0 0 8px rgba(238,193,78,0.4))',
+          }}
+        />
 
         {/* Name */}
         <h2 className="font-newsreader text-2xl text-[#EEC14E] mb-1">Daniel Alvarez</h2>
