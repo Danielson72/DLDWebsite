@@ -1,190 +1,102 @@
-import { Play, ExternalLink } from 'lucide-react';
-import { PageHero } from '../components/PageHero';
+import { DLDNav } from '../components/layout/DLDNav'
+import { DLDFooter } from '../components/layout/DLDFooter'
+import { ScriptureBanner } from '../components/ui/ScriptureBanner'
 
 export function YouTube() {
-  const featuredVideos = [
+  const pillars = [
     {
-      id: 'M8c7JlutBd8',
-      title: 'Elite Vocal Chain',
-      description: 'Professional vocal processing techniques and chain setup for studio-quality recordings.',
-      url: 'https://youtu.be/M8c7JlutBd8?si=oW9eeaUgqRqDSOAo',
-      thumbnail: `https://img.youtube.com/vi/M8c7JlutBd8/maxresdefault.jpg`
+      num: '01',
+      title: 'Faith & Kingdom Commerce',
+      desc: 'Building businesses that honor God. Real talk on Kingdom entrepreneurship.'
     },
     {
-      id: 'WD70IBOCwcU',
-      title: 'Microphone Shootout',
-      description: 'Comprehensive comparison of professional microphones for recording and live performance.',
-      url: 'https://youtu.be/WD70IBOCwcU?si=sOC34LzV2IN8Q0JL',
-      thumbnail: `https://img.youtube.com/vi/WD70IBOCwcU/maxresdefault.jpg`
+      num: '02',
+      title: 'Tech & AI Building',
+      desc: 'Building David, AI systems, Claude Code — raw and unfiltered.'
     },
     {
-      id: 'led58tzh_CU',
-      title: 'Relationships and God',
-      description: 'Spiritual guidance on building meaningful relationships through faith and divine purpose.',
-      url: 'https://youtu.be/led58tzh_CU?si=VzU9vG5zkhrwpL3n',
-      thumbnail: `https://img.youtube.com/vi/led58tzh_CU/maxresdefault.jpg`
-    }
-  ];
+      num: '03',
+      title: 'Music & Creative',
+      desc: 'Behind the scenes of the 12-song Bible album and BeatSlave productions.'
+    },
+    {
+      num: '04',
+      title: 'Business & Entrepreneurship',
+      desc: 'Running nine businesses simultaneously. What works, what doesn\'t.'
+    },
+  ]
 
   return (
-    <div className="min-h-screen bg-black">
-      <PageHero title="YouTube Channel" />
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:16px_16px]"></div>
-        
-        <div className="relative">
-          {/* Channel Introduction */}
-          <div className="text-center mb-16">
-            <div className="flex justify-center mb-6">
-              <Play size={48} className="text-amber-500 filter drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-amber-500 mb-4">
-              Welcome to the Lion's Den
-            </h2>
-            <p className="text-xl text-emerald-400 max-w-3xl mx-auto leading-relaxed">
-              Join Daniel Alvarez on a journey of faith, music, and transformation. Our YouTube channel features 
-              original music, spiritual teachings, technical tutorials, and behind-the-scenes content from the ministry.
-            </p>
-          </div>
+    <>
+      <DLDNav />
 
-          {/* Featured Content Section */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold text-amber-500 mb-8 text-center">Featured Content</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredVideos.map((video, index) => (
-                <div
-                  key={video.id}
-                  className="group relative bg-black/60 backdrop-blur-sm border border-green-500/30 rounded-lg overflow-hidden hover:border-amber-500/50 transition-all duration-300 hover:scale-105"
-                >
-                  {/* Video Thumbnail */}
-                  <div className="relative aspect-video overflow-hidden">
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => {
-                        // Fallback to default thumbnail if maxresdefault doesn't exist
-                        e.currentTarget.src = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
-                      }}
-                    />
-                    
-                    {/* Play Overlay */}
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="bg-amber-500 rounded-full p-4 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                        <Play size={24} className="text-black ml-1" fill="currentColor" />
-                      </div>
-                    </div>
-                    
-                    {/* Video Number Badge */}
-                    <div className="absolute top-3 left-3 bg-amber-500 text-black font-bold text-sm px-2 py-1 rounded">
-                      #{index + 1}
-                    </div>
-                  </div>
+      <section className="py-24 px-6 text-center" style={{ background: '#000e0f' }}>
+        <span className="block text-[10px] uppercase tracking-[0.2em] text-[#EEC14E] mb-4 font-manrope">
+          YouTube Channel
+        </span>
+        <h1 className="font-newsreader text-4xl md:text-5xl text-[#EEC14E] font-bold mb-4">
+          Watch the Journey
+        </h1>
+        <p className="text-dld-muted font-manrope max-w-md mx-auto mb-8">
+          Faith. Business. AI. Music. All documented in real time.
+        </p>
+        <a
+          href="https://www.youtube.com/@danielinthelionsden"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-8 py-4 bg-[#EEC14E] text-[#001315] font-manrope font-bold rounded-full uppercase tracking-widest text-sm hover:bg-[#F7D97A] transition">
+          Subscribe on YouTube →
+        </a>
+      </section>
 
-                  {/* Video Info */}
-                  <div className="p-6">
-                    <h4 className="text-xl font-bold text-amber-500 mb-3 group-hover:text-amber-400 transition-colors">
-                      {video.title}
-                    </h4>
-                    <p className="text-green-200/80 text-sm leading-relaxed mb-4">
-                      {video.description}
-                    </p>
-                    
-                    {/* Watch Button */}
-                    <a
-                      href={video.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-black font-medium px-4 py-2 rounded-lg transition-colors group/btn"
-                    >
-                      <ExternalLink size={16} className="group-hover/btn:scale-110 transition-transform" />
-                      Watch on YouTube
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+      <ScriptureBanner
+        verse="And whatsoever ye do, do it heartily, as to the Lord, and not unto men."
+        reference="— Colossians 3:23 (KJV)" />
 
-          {/* Channel Stats & Call to Action */}
-          <div className="bg-black/60 backdrop-blur-sm border border-green-500/30 rounded-xl p-8 text-center">
-            <h3 className="text-2xl font-bold text-amber-500 mb-4">Join Our Community</h3>
-            <p className="text-green-200/80 mb-6 max-w-2xl mx-auto">
-              Subscribe to our YouTube channel for the latest music releases, spiritual teachings, 
-              and behind-the-scenes content. Be part of the Lion's Den family and stay connected 
-              with our ministry's journey.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="https://youtube.com/@danielinthelionsden"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-lg transition-colors transform hover:scale-105"
-              >
-                <Play size={20} fill="currentColor" />
-                Subscribe on YouTube
-              </a>
-              
-              <div className="flex items-center gap-6 text-sm text-green-200/60">
-                <div className="text-center">
-                  <div className="font-bold text-amber-500">50+</div>
-                  <div>Videos</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-bold text-amber-500">1K+</div>
-                  <div>Subscribers</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-bold text-amber-500">10K+</div>
-                  <div>Views</div>
-                </div>
+      <section className="py-20 px-6" style={{ background: '#091f21' }}>
+        <div className="max-w-4xl mx-auto">
+          <span className="block text-[10px] uppercase tracking-[0.2em] text-[#EEC14E] text-center mb-3 font-manrope">
+            Content Pillars
+          </span>
+          <h2 className="font-newsreader text-3xl text-[#EEC14E] font-bold text-center mb-12">
+            What You'll Find on the Channel
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {pillars.map(p => (
+              <div key={p.num}
+                className="bg-[#192d2f] p-6 rounded-lg border-l-2 border-[#EEC14E]">
+                <span className="text-[10px] text-dld-muted/40 font-manrope block mb-2">{p.num}</span>
+                <h3 className="font-manrope font-bold text-base text-dld-text mb-2">
+                  {p.title}
+                </h3>
+                <p className="text-sm text-dld-muted/70 font-manrope leading-relaxed">{p.desc}</p>
               </div>
-            </div>
-          </div>
-
-          {/* Content Categories */}
-          <div className="mt-16">
-            <h3 className="text-2xl font-bold text-amber-500 mb-8 text-center">What You'll Find</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  title: 'Original Music',
-                  description: 'Christ-centered hip-hop, rock, reggae, and fusion tracks',
-                  icon: '🎵'
-                },
-                {
-                  title: 'Spiritual Teaching',
-                  description: 'Biblical truths, identity, and kingdom principles',
-                  icon: '📖'
-                },
-                {
-                  title: 'Technical Tutorials',
-                  description: 'Music production, recording, and audio engineering',
-                  icon: '🎛️'
-                },
-                {
-                  title: 'Behind the Scenes',
-                  description: 'Studio sessions, ministry work, and personal journey',
-                  icon: '🎬'
-                }
-              ].map((category, index) => (
-                <div
-                  key={index}
-                  className="bg-black/40 border border-green-500/20 rounded-lg p-6 text-center hover:border-amber-500/30 transition-colors"
-                >
-                  <div className="text-3xl mb-3">{category.icon}</div>
-                  <h4 className="text-lg font-bold text-amber-500 mb-2">{category.title}</h4>
-                  <p className="text-green-200/70 text-sm">{category.description}</p>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
-      </div>
-    </div>
-  );
+      </section>
+
+      <section className="py-20 px-6 text-center"
+        style={{
+          background: '#091f21',
+          borderTop: '1px solid rgba(238,193,78,0.3)'
+        }}>
+        <h2 className="font-newsreader text-3xl text-[#EEC14E] font-bold mb-4">
+          Join the Den
+        </h2>
+        <p className="text-dld-muted font-manrope mb-8">
+          Subscribe and never miss a drop.
+        </p>
+        <a
+          href="https://www.youtube.com/@danielinthelionsden"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-8 py-4 bg-[#EEC14E] text-[#001315] font-manrope font-bold rounded-full uppercase tracking-widest text-sm hover:bg-[#F7D97A] transition">
+          Subscribe Now →
+        </a>
+      </section>
+
+      <DLDFooter />
+    </>
+  )
 }

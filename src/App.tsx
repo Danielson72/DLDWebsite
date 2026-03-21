@@ -30,6 +30,7 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/blog" element={<BlogPage />} />
+        <Route path="/youtube" element={<YouTube />} />
         <Route path="/" element={<Layout />}>
           <Route path="about" element={<About />} />
           <Route path="ministry" element={<Ministry />} />
@@ -38,7 +39,6 @@ function App() {
           <Route path="music/upload" element={<MusicUpload />} />
           <Route path="my-music" element={<MyMusic />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="youtube" element={<YouTube />} />
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
