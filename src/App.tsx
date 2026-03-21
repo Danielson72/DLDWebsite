@@ -3,6 +3,10 @@ import { Layout } from './components/Layout';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Home } from './pages/Home';
+import { HomePage } from './pages/HomePage';
+import { SoftwareDev } from './pages/SoftwareDev';
+import { ContactPage } from './pages/ContactPage';
+import { AboutPage } from './pages/AboutPage';
 import { Login } from './pages/Login';
 import { Ministry } from './pages/Ministry';
 import { Music } from './pages/Music';
@@ -19,8 +23,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/software-dev" element={<SoftwareDev />} />
+        <Route path="/software-development" element={<SoftwareDev />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="ministry" element={<Ministry />} />
           <Route path="services" element={<Services />} />

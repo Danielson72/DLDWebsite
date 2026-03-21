@@ -3,6 +3,21 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      colors: {
+        "dld-dark":    "#001315",
+        "dld-darker":  "#001113",
+        "dld-navy":    "#091f21",
+        "dld-card":    "#192d2f",
+        "dld-surface": "#0e2325",
+        "dld-gold":    "#EEC14E",
+        "dld-amber":   "#DA920F",
+        "dld-text":    "#d0e7e9",
+        "dld-muted":   "#d1c5b0",
+      },
+      fontFamily: {
+        newsreader: ['"Newsreader"', 'serif'],
+        manrope: ['"Manrope"', 'sans-serif'],
+      },
       keyframes: {
         'matrix-rain': {
           '0%': {

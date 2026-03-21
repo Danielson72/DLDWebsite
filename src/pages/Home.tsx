@@ -10,7 +10,7 @@ export function Home() {
 
       {/* Center Image Container */}
       <div className="flex-none w-full max-w-[300px] sm:max-w-[500px] md:max-w-[700px] lg:max-w-[900px] xl:max-w-[1200px] relative mx-auto">
-        <div 
+        <div
           className="absolute inset-0 bg-contain bg-center bg-no-repeat"
           style={{ backgroundImage: 'url("/ChatGPT Image Jun 5, 2025, 02_06_35 PM (1).png")' }}
         ></div>
