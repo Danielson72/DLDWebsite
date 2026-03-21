@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/software-dev', label: 'Software Dev' },
+  { to: '/software-development', label: 'Software Dev' },
+  { to: '/music', label: 'Music' },
+  { to: '/youtube', label: 'YouTube' },
   { to: '/about', label: 'About' },
   { to: '/blog', label: 'Blog' },
 ];
@@ -80,7 +82,9 @@ export function DLDNav() {
           }}>
           {[
             { to: '/', label: 'Home' },
-            { to: '/software-dev', label: 'Software Dev' },
+            { to: '/software-development', label: 'Software Dev' },
+            { to: '/music', label: 'Music' },
+            { to: '/youtube', label: 'YouTube' },
             { to: '/about', label: 'About' },
             { to: '/blog', label: 'Blog' },
             { to: '/contact', label: 'Contact' },
