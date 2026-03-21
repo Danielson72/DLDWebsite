@@ -20,7 +20,7 @@ export function DLDNav() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img
-            src="/images/dld-logo.png"
+            src="/icons/logo-40.png"
             alt="DLD Logo"
             className="w-10 h-10 object-contain"
             style={{ background: 'transparent' }}

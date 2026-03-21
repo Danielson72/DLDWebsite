@@ -6,7 +6,7 @@ export function AboutDaniel() {
         <div className="w-28 h-28 rounded-full border-2 border-[#EEC14E] mb-6 flex items-center justify-center"
           style={{ background: 'transparent' }}>
           <img
-            src="/images/dld-logo.png"
+            src="/icons/logo-96.png"
             alt="DLD Lion Logo"
             className="w-24 h-24 object-contain"
             style={{ background: 'transparent' }}
