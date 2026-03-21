@@ -6,11 +6,8 @@ export function AboutDaniel() {
         <img
           src="/images/dld-logo.png"
           alt="DLD Lion Logo"
-          className="w-32 h-32 object-contain mb-6"
-          style={{
-            mixBlendMode: 'lighten',
-            filter: 'drop-shadow(0 0 8px rgba(238,193,78,0.4))',
-          }}
+          className="w-36 h-36 object-contain mb-6"
+          style={{ filter: 'drop-shadow(0 0 12px rgba(238,193,78,0.5))' }}
         />
 
         {/* Name */}
