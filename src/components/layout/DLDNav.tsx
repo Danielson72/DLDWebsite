@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const navLinks = [
@@ -8,9 +9,11 @@ const navLinks = [
 ];
 
 export function DLDNav() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <header
-      className="sticky top-0 z-50 h-16 flex items-center backdrop-blur"
+      className="sticky top-0 z-50 h-16 flex items-center backdrop-blur relative"
       style={{
         backgroundColor: 'rgba(2,22,24,0.8)',
         borderBottom: '1px solid rgba(238,193,78,0.1)',
@@ -50,16 +53,48 @@ export function DLDNav() {
           </Link>
         </nav>
 
-        {/* Mobile: Book a Call only (hamburger is future) */}
-        <div className="md:hidden">
-          <Link
-            to="/contact"
-            className="px-4 py-1.5 rounded-full text-sm font-manrope font-semibold bg-dld-gold text-dld-dark hover:bg-dld-amber transition-colors"
-          >
+        {/* Mobile right side */}
+        <div className="md:hidden flex items-center gap-3">
+          <Link to="/contact"
+            className="px-4 py-1.5 rounded-full text-xs font-manrope font-bold bg-[#EEC14E] text-[#001315]">
             Book a Call
           </Link>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex flex-col gap-1.5 p-2 cursor-pointer"
+            aria-label="Toggle menu">
+            <span className={`block w-6 h-0.5 bg-[#EEC14E] transition-all duration-300 origin-center ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}/>
+            <span className={`block w-6 h-0.5 bg-[#EEC14E] transition-all duration-300 ${menuOpen ? 'opacity-0 scale-x-0' : ''}`}/>
+            <span className={`block w-6 h-0.5 bg-[#EEC14E] transition-all duration-300 origin-center ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}/>
+          </button>
         </div>
       </div>
+
+      {/* Mobile dropdown */}
+      {menuOpen && (
+        <div className="md:hidden absolute top-16 left-0 right-0 z-50 flex flex-col gap-1 py-4 px-6"
+          style={{
+            background: 'rgba(0,14,15,0.98)',
+            borderBottom: '1px solid rgba(238,193,78,0.2)',
+            backdropFilter: 'blur(12px)',
+          }}>
+          {[
+            { to: '/', label: 'Home' },
+            { to: '/software-dev', label: 'Software Dev' },
+            { to: '/about', label: 'About' },
+            { to: '/blog', label: 'Blog' },
+            { to: '/contact', label: 'Contact' },
+          ].map(link => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setMenuOpen(false)}
+              className="font-manrope text-sm text-dld-text hover:text-[#EEC14E] py-3 border-b border-[#EEC14E]/10 transition-colors last:border-0">
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
     </header>
   );
 }
