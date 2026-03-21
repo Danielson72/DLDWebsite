@@ -7,6 +7,7 @@ import { HomePage } from './pages/HomePage';
 import { SoftwareDev } from './pages/SoftwareDev';
 import { ContactPage } from './pages/ContactPage';
 import { AboutPage } from './pages/AboutPage';
+import { BlogPage } from './pages/BlogPage';
 import { Login } from './pages/Login';
 import { Ministry } from './pages/Ministry';
 import { Music } from './pages/Music';
@@ -28,6 +29,7 @@ function App() {
         <Route path="/software-development" element={<SoftwareDev />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/blog" element={<BlogPage />} />
         <Route path="/" element={<Layout />}>
           <Route path="about" element={<About />} />
           <Route path="ministry" element={<Ministry />} />
