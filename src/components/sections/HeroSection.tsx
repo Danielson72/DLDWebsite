@@ -5,20 +5,22 @@ const heroImage = '/images/dld-hero.png';
 export function HeroSection() {
   return (
     <section
-      className="relative min-h-screen overflow-hidden"
+      className="relative min-h-screen overflow-hidden hero-bg"
       style={{
         backgroundImage: `url(${heroImage})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: '50% 20%',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'scroll',
       }}
     >
       {/* LAYER 1 — Background image (div with CSS background for navigation resilience) */}
       <div
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 w-full h-full hero-bg"
         style={{
           backgroundImage: `url(${heroImage})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: '50% 20%',
           backgroundRepeat: 'no-repeat',
         }}
         role="img"

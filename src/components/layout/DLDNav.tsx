@@ -23,6 +23,7 @@ export function DLDNav() {
             src="/images/dld-logo.png"
             alt="DLD Logo"
             className="w-10 h-10 object-contain"
+            style={{ background: 'transparent' }}
           />
           <span className="font-newsreader italic text-xl text-[#EEC14E] hidden sm:block">
             DLD

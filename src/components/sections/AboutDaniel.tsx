@@ -3,11 +3,13 @@ export function AboutDaniel() {
     <section className="py-20 px-6" style={{ backgroundColor: '#091f21' }}>
       <div className="flex flex-col items-center text-center">
         {/* Avatar */}
-        <div className="w-24 h-24 rounded-full border-2 border-[#EEC14E] bg-[#001315] overflow-hidden mb-6 flex items-center justify-center p-2">
+        <div className="w-28 h-28 rounded-full border-2 border-[#EEC14E] mb-6 flex items-center justify-center"
+          style={{ background: 'transparent' }}>
           <img
             src="/images/dld-logo.png"
             alt="DLD Lion Logo"
-            className="w-full h-full object-contain"
+            className="w-24 h-24 object-contain"
+            style={{ background: 'transparent' }}
           />
         </div>
 
