@@ -4,7 +4,7 @@ export function AboutDaniel() {
       <div className="flex flex-col items-center text-center">
         {/* Avatar */}
         <img
-          src="/images/dld-logo.png"
+          src="/images/dld-logo.png?v=4"
           alt="DLD Lion Logo"
           className="w-36 h-36 object-contain mb-6"
           style={{ filter: 'drop-shadow(0 0 12px rgba(238,193,78,0.5))' }}
