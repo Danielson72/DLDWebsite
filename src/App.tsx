@@ -33,9 +33,9 @@ function App() {
         <Route path="/youtube" element={<YouTube />} />
         <Route path="/music" element={<Music />} />
         <Route path="/ministry" element={<Ministry />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/" element={<Layout />}>
           <Route path="about" element={<About />} />
-          <Route path="services" element={<Services />} />
           <Route path="music/upload" element={<MusicUpload />} />
           <Route path="my-music" element={<MyMusic />} />
           <Route path="dashboard" element={<Dashboard />} />
