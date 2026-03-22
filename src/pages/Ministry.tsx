@@ -1,6 +1,8 @@
 import { Heart, Users, BookOpen, SprayCan as Pray, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PageHero } from '../components/PageHero';
+import { DLDNav } from '../components/layout/DLDNav';
+import { DLDFooter } from '../components/layout/DLDFooter';
+import { ScriptureBanner } from '../components/ui/ScriptureBanner';
 
 export function Ministry() {
   const ministryPrograms = [
@@ -31,71 +33,89 @@ export function Ministry() {
   ];
 
   return (
-    <div className="min-h-screen bg-black">
-      <PageHero title="Our Ministry" />
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:16px_16px]"></div>
-        
-        {/* Mission Statement */}
-        <div className="relative text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-amber-500 mb-6">
-            Called to Transform Lives
+    <>
+      <DLDNav />
+
+      {/* Hero */}
+      <section className="py-24 px-6 text-center" style={{ background: '#000e0f' }}>
+        <span className="block text-[10px] uppercase tracking-[0.2em] text-[#EEC14E] mb-4 font-manrope">
+          Our Ministry
+        </span>
+        <h1 className="font-newsreader text-4xl md:text-5xl text-[#EEC14E] font-bold mb-4">
+          Called to Transform Lives
+        </h1>
+        <p className="text-dld-muted font-manrope max-w-2xl mx-auto leading-relaxed">
+          Daniel in the Lion's Den Ministry operates in faith and wisdom, bringing transformation
+          through teaching, prayer, and community outreach. We represent a modern-day voice
+          crying out in the digital wilderness.
+        </p>
+      </section>
+
+      <ScriptureBanner
+        verse="Religion that God our Father accepts as pure and faultless is this: to look after orphans and widows in their distress."
+        reference="— James 1:27 (NIV)" />
+
+      {/* Ministry Programs */}
+      <section className="py-20 px-6" style={{ background: '#091f21' }}>
+        <div className="max-w-5xl mx-auto">
+          <span className="block text-[10px] uppercase tracking-[0.2em] text-[#EEC14E] text-center mb-3 font-manrope">
+            What We Do
+          </span>
+          <h2 className="font-newsreader text-3xl text-[#EEC14E] font-bold text-center mb-12">
+            Ministry Programs
           </h2>
-          <p className="text-xl text-emerald-400 max-w-3xl mx-auto leading-relaxed">
-            Daniel in the Lion's Den Ministry operates in faith and wisdom, bringing transformation 
-            through teaching, prayer, and community outreach. We represent a modern-day voice 
-            crying out in the digital wilderness.
-          </p>
-        </div>
 
-        {/* Ministry Programs Grid */}
-        <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {ministryPrograms.map((program, index) => (
-            <div
-              key={index}
-              className="bg-black/60 backdrop-blur-sm border border-green-500/30 rounded-lg p-8 hover:border-amber-500/50 transition-all duration-300 hover:scale-105"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-amber-500/20 rounded-full">
-                  <program.icon size={32} className="text-amber-500" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {ministryPrograms.map((program, index) => (
+              <div
+                key={index}
+                className="bg-[#192d2f] border border-[#EEC14E]/20 rounded-lg p-8 hover:border-[#EEC14E]/40 transition-all duration-300"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 bg-[#EEC14E]/10 rounded-full">
+                    <program.icon size={32} className="text-[#EEC14E]" />
+                  </div>
+                  <h3 className="font-newsreader text-xl font-bold text-[#EEC14E]">{program.title}</h3>
                 </div>
-                <h3 className="text-2xl font-bold text-amber-500">{program.title}</h3>
+                <p className="text-dld-muted font-manrope mb-6 leading-relaxed">{program.description}</p>
+                <button className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#EEC14E] text-[#001315] font-manrope font-bold rounded-full uppercase tracking-widest text-xs hover:bg-[#F7D97A] transition-colors">
+                  {program.action}
+                  <ArrowRight size={14} />
+                </button>
               </div>
-              <p className="text-gray-300 mb-6 leading-relaxed">{program.description}</p>
-              <button className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-black font-medium px-4 py-2 rounded-lg transition-colors">
-                {program.action}
-                <ArrowRight size={16} />
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* Call to Action Section */}
-        <div className="relative bg-gradient-to-r from-amber-500/10 to-green-500/10 border border-amber-500/30 rounded-xl p-8 text-center">
-          <h3 className="text-2xl font-bold text-amber-500 mb-4">
+      {/* Call to Action */}
+      <section className="py-20 px-6 text-center" style={{ background: '#091f21', borderTop: '1px solid rgba(238,193,78,0.15)' }}>
+        <div className="max-w-2xl mx-auto">
+          <h2 className="font-newsreader text-3xl text-[#EEC14E] font-bold mb-4">
             Ready to Join Our Ministry?
-          </h3>
-          <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-            Whether you're seeking spiritual guidance, want to volunteer, or need prayer, 
+          </h2>
+          <p className="text-dld-muted font-manrope mb-8">
+            Whether you're seeking spiritual guidance, want to volunteer, or need prayer,
             we're here to walk alongside you in your faith journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/contact"
-              className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-6 py-3 rounded-lg transition-colors"
+              className="inline-block px-8 py-4 bg-[#EEC14E] text-[#001315] font-manrope font-bold rounded-full uppercase tracking-widest text-sm hover:bg-[#F7D97A] transition-colors"
             >
               Get Involved Today
             </Link>
             <Link
               to="/services"
-              className="bg-transparent border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black font-bold px-6 py-3 rounded-lg transition-colors"
+              className="inline-block px-8 py-4 border border-[#EEC14E]/30 text-[#EEC14E] font-manrope font-bold rounded-full uppercase tracking-widest text-sm hover:bg-[#EEC14E] hover:text-[#001315] transition-colors"
             >
               View Service Schedule
             </Link>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      <DLDFooter />
+    </>
   );
 }
