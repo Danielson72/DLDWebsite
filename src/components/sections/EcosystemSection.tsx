@@ -1,15 +1,16 @@
+import { Link } from 'react-router-dom'
 import { useFadeIn } from '../../hooks/useFadeIn'
 
 const businesses = [
   { name: 'SOTSVC', desc: 'We Bring the Boom to Every Room', href: 'https://sotsvc.com' },
   { name: 'Boss of Clean', desc: 'Home Service Marketplace', href: 'https://bossofclean.com' },
   { name: 'TrustedCleaningExpert', desc: "YOU'RE CLEAN OR YOU'RE DIRTY", href: 'https://trustedcleaningexpert.com' },
-  { name: 'AI Command Lab', desc: 'Custom CRM & Automation Platform' },
-  { name: 'BeatSlave', desc: 'Gospel \u00b7 Hip-Hop \u00b7 Drum & Bass' },
-  { name: 'HalleluYAH Worship Wear', desc: 'Wear Your Worship' },
-  { name: 'AllCalculate', desc: 'SaaS Calculator Platform' },
-  { name: 'TempleBuilderApp', desc: 'Faith meets Entrepreneurship' },
-];
+  { name: 'AI Command Lab', desc: 'Custom CRM & Automation Platform', href: 'https://ai-command-lab.netlify.app' },
+  { name: 'BeatSlave', desc: 'Gospel \u00b7 Hip-Hop \u00b7 Drum & Bass', href: 'https://beatslavemusic.com' },
+  { name: 'HalleluYAH Worship Wear', desc: 'Wear Your Worship', href: '/shop', internal: true },
+  { name: 'AllCalculate', desc: 'SaaS Calculator Platform', comingSoon: true },
+  { name: 'TempleBuilderApp', desc: 'Faith meets Entrepreneurship', comingSoon: true },
+] as const;
 
 export function EcosystemSection() {
   const ref = useFadeIn()
@@ -45,24 +46,38 @@ export function EcosystemSection() {
               <>
                 <h3 className="font-manrope font-bold text-base text-dld-text mb-1">{biz.name}</h3>
                 <p className="font-manrope text-sm text-dld-muted/60">{biz.desc}</p>
+                {'comingSoon' in biz && biz.comingSoon && (
+                  <span className="text-[9px] text-dld-muted/40 font-manrope italic">Coming Soon</span>
+                )}
               </>
             );
 
-            return biz.href ? (
-              <a
-                key={biz.name}
-                href={biz.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#192d2f] p-6 rounded-lg border border-[#EEC14E]/10 hover:border-[#EEC14E]/40 transition-colors"
-              >
-                {inner}
-              </a>
-            ) : (
-              <div
-                key={biz.name}
-                className="bg-[#192d2f] p-6 rounded-lg border border-[#EEC14E]/10"
-              >
+            const cardClass = "bg-[#192d2f] p-6 rounded-lg border border-[#EEC14E]/10 hover:border-[#EEC14E]/40 transition-colors";
+
+            if ('internal' in biz && biz.internal && 'href' in biz) {
+              return (
+                <Link key={biz.name} to={biz.href} className={cardClass}>
+                  {inner}
+                </Link>
+              );
+            }
+
+            if ('href' in biz && biz.href) {
+              return (
+                <a
+                  key={biz.name}
+                  href={biz.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cardClass}
+                >
+                  {inner}
+                </a>
+              );
+            }
+
+            return (
+              <div key={biz.name} className="bg-[#192d2f] p-6 rounded-lg border border-[#EEC14E]/10">
                 {inner}
               </div>
             );
