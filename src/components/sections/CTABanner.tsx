@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useFadeIn } from '../../hooks/useFadeIn'
 
 export function CTABanner() {
+  const ref = useFadeIn()
   return (
     <section
+      ref={ref as any}
       className="py-20 px-6 text-center"
       style={{
         backgroundColor: '#091f21',

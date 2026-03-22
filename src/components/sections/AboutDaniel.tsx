@@ -1,6 +1,9 @@
+import { useFadeIn } from '../../hooks/useFadeIn'
+
 export function AboutDaniel() {
+  const ref = useFadeIn(100)
   return (
-    <section className="py-20 px-6" style={{ backgroundColor: '#091f21' }}>
+    <section ref={ref as any} className="py-20 px-6" style={{ backgroundColor: '#091f21' }}>
       <div className="flex flex-col items-center text-center">
         {/* Avatar */}
         <img

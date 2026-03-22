@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useFadeIn } from '../../hooks/useFadeIn';
 
 export function LeadCapture() {
+  const ref = useFadeIn(150)
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -29,7 +31,7 @@ export function LeadCapture() {
   };
 
   return (
-    <section className="py-20 px-6" style={{ backgroundColor: '#001113' }}>
+    <section ref={ref as any} className="py-20 px-6" style={{ backgroundColor: '#001113' }}>
       <div
         className="max-w-lg mx-auto rounded-xl p-10 text-center"
         style={{

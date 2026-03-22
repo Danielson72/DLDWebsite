@@ -1,11 +1,15 @@
+import { useFadeIn } from '../../hooks/useFadeIn'
+
 interface ScriptureBannerProps {
   verse: string;
   reference: string;
 }
 
 export function ScriptureBanner({ verse, reference }: ScriptureBannerProps) {
+  const ref = useFadeIn()
   return (
     <div
+      ref={ref as any}
       className="py-10 px-6"
       style={{
         backgroundColor: '#091f21',

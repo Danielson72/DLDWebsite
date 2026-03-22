@@ -1,3 +1,5 @@
+import { useFadeIn } from '../../hooks/useFadeIn'
+
 const pillars = [
   {
     num: '01',
@@ -22,8 +24,9 @@ const pillars = [
 ];
 
 export function FourPillars() {
+  const ref = useFadeIn(100)
   return (
-    <section className="py-20 px-6" style={{ backgroundColor: '#0e2325' }}>
+    <section ref={ref as any} className="py-20 px-6" style={{ backgroundColor: '#0e2325' }}>
       <div className="max-w-7xl mx-auto">
         {/* Section tag */}
         <span className="block mb-3 text-center text-[10px] uppercase tracking-[0.2em] text-[#EEC14E] font-manrope">

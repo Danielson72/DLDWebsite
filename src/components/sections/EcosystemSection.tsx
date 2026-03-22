@@ -1,3 +1,5 @@
+import { useFadeIn } from '../../hooks/useFadeIn'
+
 const businesses = [
   { name: 'SOTSVC', desc: 'We Bring the Boom to Every Room', href: 'https://sotsvc.com' },
   { name: 'Boss of Clean', desc: 'Home Service Marketplace', href: 'https://bossofclean.com' },
@@ -10,8 +12,9 @@ const businesses = [
 ];
 
 export function EcosystemSection() {
+  const ref = useFadeIn()
   return (
-    <section className="py-20 px-6" style={{ backgroundColor: '#091f21' }}>
+    <section ref={ref as any} className="py-20 px-6" style={{ backgroundColor: '#091f21' }}>
       <div className="max-w-7xl mx-auto">
         {/* Section tag */}
         <span className="block mb-3 text-center text-[10px] uppercase tracking-[0.2em] text-[#EEC14E] font-manrope">
