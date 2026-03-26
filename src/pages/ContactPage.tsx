@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { DLDNav } from '../components/layout/DLDNav';
 import { DLDFooter } from '../components/layout/DLDFooter';
-import { supabase } from '../lib/supabase';
-
 const inputStyle =
   'w-full bg-[#001113] border border-[#EEC14E]/20 text-dld-text px-4 py-3 rounded-lg text-sm font-manrope focus:outline-none focus:border-[#EEC14E]/50';
 
@@ -26,19 +24,26 @@ export function ContactPage() {
     e.preventDefault();
     setStatus('loading');
 
-    const { error } = await supabase.from('contact_submissions').insert({
-      name: form.name,
-      email: form.email,
-      project_type: form.project_type || null,
-      budget: form.budget || null,
-      message: form.message,
-      source: 'dld-online',
-    });
-
-    if (error) {
-      setStatus('error');
-    } else {
+    try {
+      const subject = [form.project_type, form.budget].filter(Boolean).join(' — ') || 'General Inquiry';
+      const res = await fetch(
+        'https://dljerhvmrzjwjaphycgx.supabase.co/functions/v1/dld-contact-form',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            phone: '',
+            message: form.message,
+            subject,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error('Request failed');
       setStatus('success');
+    } catch {
+      setStatus('error');
     }
   };
 
@@ -65,16 +70,9 @@ export function ContactPage() {
           <div>
             {status === 'success' ? (
               <div className="text-center py-16">
-                <span className="text-4xl block mb-4">✓</span>
                 <h3 className="font-newsreader text-2xl text-[#EEC14E] mb-2">
-                  Message received. 🦁
+                  Message sent! I'll be in touch within 24 hours. 🦁
                 </h3>
-                <p className="text-dld-muted font-manrope text-sm mb-4">
-                  I'll be in touch within 24 hours.
-                </p>
-                <p className="text-dld-muted/50 font-manrope text-xs">
-                  No calls Saturday — Sabbath observed 🙏
-                </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-0">
@@ -177,7 +175,7 @@ export function ContactPage() {
 
                 {status === 'error' && (
                   <p className="text-red-400 text-sm font-manrope mt-3 text-center">
-                    Something went wrong. Please try again.
+                    Something went wrong — please email danielinthelionsden72@gmail.com directly.
                   </p>
                 )}
               </form>
