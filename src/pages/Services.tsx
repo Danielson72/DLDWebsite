@@ -76,8 +76,7 @@ const portfolio = [
   { name: 'bossofclean.com', url: 'https://bossofclean.com', description: 'Cleaning marketplace connecting customers with top-rated pros' },
   { name: 'trustedcleaningexpert.com', url: 'https://trustedcleaningexpert.com', description: 'Cleaning education and referral platform' },
   { name: 'aicommandlab.com', url: 'https://aicommandlab.com', description: 'AI-powered SaaS platform for workflow automation' },
-  { name: 'surfaceking.com', url: 'https://surfaceking.com', description: 'Asphalt, concrete, and ADA compliance contractor' },
-  { name: 'surfacekingdevelopment.com', url: 'https://surfacekingdevelopment.com', description: 'General contractor site and development showcase' },
+  { name: 'jmhomedecor.com', url: 'https://jmhomedecor.com', description: 'Custom portfolio website with 60+ project photos, Cloudinary image hosting, and Stripe recurring billing integration' },
 ];
 
 const trustPoints = [
