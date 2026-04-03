@@ -5,7 +5,7 @@ const businesses = [
   { name: 'SOTSVC', desc: 'We Bring the Boom to Every Room', href: 'https://sotsvc.com' },
   { name: 'Boss of Clean', desc: 'Home Service Marketplace', href: 'https://bossofclean.com' },
   { name: 'TrustedCleaningExpert', desc: "YOU'RE CLEAN OR YOU'RE DIRTY", href: 'https://trustedcleaningexpert.com' },
-  { name: 'AI Command Lab', desc: 'Custom CRM & Automation Platform', href: 'https://ai-command-lab.netlify.app' },
+  { name: 'AI Command Lab', desc: 'Custom CRM & Automation Platform', href: 'https://aicommandlab.com' },
   { name: 'BeatSlave', desc: 'Gospel \u00b7 Hip-Hop \u00b7 Drum & Bass', href: 'https://beatslavemusic.com' },
   { name: 'HalleluYAH Worship Wear', desc: 'Wear Your Worship', href: '/shop', internal: true },
   { name: 'AllCalculate', desc: 'SaaS Calculator Platform', comingSoon: true },
